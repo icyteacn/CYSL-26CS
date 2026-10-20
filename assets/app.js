@@ -80,7 +80,7 @@ function seed(){
 let DB=null;
 function load(){try{DB=JSON.parse(localStorage.getItem(DB_KEY))}catch(e){}if(!DB||!DB.members){DB=seed();save()}}
 function save(){localStorage.setItem(DB_KEY,JSON.stringify(DB));emit()}
-const emit=debounce(()=>{if(cur==='dashboard')render()},400);
+const emit=debounce(()=>{if(cur==='dashboard')render(pgDash)},400);
 const nextId=a=>a.reduce((m,x)=>Math.max(m,x.id||0),0)+1;
 
 /* ================= 身份/口令 ================= */
@@ -168,7 +168,8 @@ function qrImg(text,sz=200){return `<img src="${qrURL(text,sz)}" onerror="this.o
 /* ================= 路由 ================= */
 let cur='dashboard';
 const routes={dashboard:pgDash,records:pgRecords,record:pgRecord,calendar:pgCalendar,
-  volunteer:pgVol,projects:pgProjects,project:pgProject,members:pgMembers,system:pgSystem,checkin:pgCheckin};
+  volunteer:pgVol,projects:pgProjects,project:pgProject,members:pgMembers,system:pgSystem,checkin:pgCheckin,
+  party:pgParty,knowledge:pgKnowledge,official:pgOfficial};
 function nav(){const h=location.hash.slice(2)||'dashboard';const[name,arg]=h.split('/');
   if(!auth()){renderLock();return}
   cur=routes[name]?name:'dashboard';
@@ -183,8 +184,8 @@ function topbar(){return`<div class="topbar"><div class="brand"><span class="fla
   <a class="tbtn" href="#/calendar">📅</a>
   <a class="tbtn gold" href="#/showcase" target="_self">✦ 出片</a>
   <button class="tbtn" onclick="logout()">⇥</button></div>`}
-function navbar(){const I=[['dashboard','⌂','首页'],['records','🗂','留痕'],['volunteer','♥','志愿'],['projects','🚀','立项'],['members','👥','成员'],['system','⚙','体系']];
-  return`<div class="nav">${I.map(([k,i,n])=>`<a href="#/${k}" class="${cur===k?'on':''}"><span class="i">${i}</span>${n}</a>`).join('')}</div>`}
+function navbar(){const I=[['dashboard','⌂','首页'],['records','🗂','留痕'],['volunteer','♥','志愿'],['projects','🚀','立项'],['party','🏛','入党'],['knowledge','📚','知识'],['members','👥','成员'],['system','⚙','体系']];
+  return`<div class="nav" style="overflow-x:auto">${I.map(([k,i,n])=>`<a href="#/${k}" class="${cur===k?'on':''}" style="flex-shrink:0"><span class="i">${i}</span>${n}</a>`).join('')}</div>`}
 window.logout=()=>{sessionStorage.removeItem(AUTH_KEY);location.hash='#/dashboard';renderLock()};
 
 /* ================= 锁屏 ================= */
@@ -229,6 +230,12 @@ function pgDash(){const s=st(),pg=$('#pg');
       :`<div class="empty" style="color:rgba(255,255,255,.7);padding:24px 0"><span class="big">📅</span>暂无计划中的活动<br>${canEdit()?'<a class="btn sm" style="margin-top:10px" href="#/records">去安排</a>':''}</div>`}
     </div>
   </div>
+  <div class="grid g4" style="margin-top:14px" id="official-card">
+    <a class="card" href="#/party"><h3><span class="dot"></span>🏛 入党日程</h3><div style="font-size:12px;color:var(--mut)">全流程·五批次·材料清单</div></a>
+    <a class="card" href="#/knowledge"><h3><span class="dot"></span>📚 团务知识库</h3><div style="font-size:12px;color:var(--mut)">三会两制一课·团章·推优</div></a>
+    <a class="card" href="#/official"><h3><span class="dot"></span>📣 官方公告</h3><div style="font-size:12px;color:var(--mut)" id="official-hint">支委发布·自动同步</div></a>
+    <a class="card" href="#/calendar"><h3><span class="dot"></span>📅 活动日历</h3><div style="font-size:12px;color:var(--mut)">月历视图·当日明细</div></a>
+  </div>
   <div class="grid g4" style="margin-top:14px">
     ${[['🗂',s.recCnt,'留痕活动','#/records'],['♥',s.volHours,'志愿服务时长','#/volunteer'],
        ['📷',s.photoCnt,'照片留痕','#/records'],['✓',s.doneCnt+'/'+s.recCnt,'三件套完备','#/system']]
@@ -247,7 +254,7 @@ function pgDash(){const s=st(),pg=$('#pg');
   if(s.next){const end=day0(s.next.date)+9*36e5;const tick=()=>{let d=Math.max(0,end-Date.now());
     const u={天:d/864e5|0,时:d/36e5%24|0,分:d/6e4%60|0,秒:d/1e3%60|0};
     Object.entries(u).forEach(([k,v])=>{const e=$('#cd-'+k);if(e)e.textContent=String(v).padStart(2,'0')})};
-    tick();const iv=setInterval(tick,1e3);if(!window.__cd)window.__cd=iv;else{clearInterval(window.__cd);window.__cd=iv}}}
+    tick();const iv=setInterval(tick,1e3);if(!window.__cd)window.__cd=iv;else{clearInterval(window.__cd);window.__cd=iv}}
 }
 function rowHTML(r){return`<a class="row" href="#/record/${r.id}">
   <span class="cat" style="background:#f5ece4">${CAT_ICON[r.category]||'📌'}</span>
@@ -618,7 +625,121 @@ window.exitShowcase=()=>{clearInterval(scTimer);clearInterval(window.__scClock);
   document.removeEventListener('keydown',scKeys);document.title='CYSL · 团支部数字化工作台';
   if(document.fullscreenElement)document.exitFullscreen();nav()};
 
-/* ================= modal ================= */
+/* ================= 入党日程 ================= */
+const PARTY={
+ stats:[['⚡','最快入党时间','2年3个月','从提交申请书到转正式党员的最短路径。以第一批为例：2026.9 提交申请 → 2026.10-11 评积极分子 → 2027.10-11 评发展对象 → 2028.6 预备党员 → 2029.6 转正。'],
+  ['🎯','毕业前转预备截止','研二下（2028.3前）','2028年3月前被评为入党积极分子，才有机会在毕业前转为预备党员。'],
+  ['🏆','毕业前转正截止','研一下（2027.3前）','2027年3月前被评为入党积极分子，才有机会在毕业前转为正式党员。']],
+ flow:[['📝','提交入党申请书','手写约3000字，400字方格纸'],['🗳️','评入党积极分子','团组织推优，约2-3个月'],
+  ['🌟','评发展对象','积极分子满一年'],['📚','党课培训考试','24学时党校培训'],['🎉','转预备党员','预备期一年'],['🏆','转正式党员','预备期满转正']],
+ batches:[
+  {n:'第一批',t:'2026.9–2029.6',st:'当前阶段',cls:'green',target:'毕业前转正式党员',
+   ms:[['2026.9','提交入党申请书'],['2026.10-11','团组织推优评积极分子'],['2026.12','党课培训（24学时）'],['2027.1','党章考试及格，成为积极分子'],['2027.10-11','积极分子满一年，评发展对象'],['2027.12','党校培训（24学时）'],['2028.1','校党委组织谈话'],['2028.3','成为发展对象'],['2028.6','成为预备党员'],['2029.6','转为正式党员']]},
+  {n:'第二批',t:'2027.3–2029.6',st:'即将开始',cls:'gold',target:'毕业前转正式党员',
+   ms:[['2027.3','推优评积极分子'],['2027.4','党课培训'],['2027.6','成为积极分子'],['2028.3','评发展对象'],['2028.4','党校培训'],['2028.5','组织谈话'],['2028.6','成为发展对象'],['2028.9','预备党员'],['2029.9','转为正式党员']]},
+  {n:'第三批',t:'2027.10–2030.6',st:'未来批次',cls:'',target:'毕业后转正',
+   ms:[['2027.10-11','推优评积极分子'],['2027.12','党课培训'],['2028.1','成为积极分子'],['2028.10-11','评发展对象'],['2028.12','党校培训'],['2029.1','组织谈话'],['2029.3','发展对象'],['2029.6','预备党员'],['2030.6','转为正式党员']]},
+  {n:'第四批',t:'2028.3–2030.6',st:'未来批次',cls:'',target:'毕业前转预备党员',
+   ms:[['2028.3','推优评积极分子'],['2028.4','党课培训'],['2028.6','积极分子'],['2029.3','评发展对象'],['2029.4','党校培训'],['2029.5','组织谈话'],['2029.6','发展对象'],['2029.9','预备党员'],['2030.9','转为正式党员']]},
+  {n:'第五/六批',t:'2028.9/2029.3 起',st:'最晚批次',cls:'',target:'毕业后继续发展',
+   ms:[['2028.9 或 2029.3','推优评积极分子'],['+1月','党课培训'],['+3月','成为积极分子'],['+1年','评发展对象'],['此后','党校培训→谈话→发展对象→预备党员'],['毕业后','转正，发展不中断']]}],
+ materials:[['入党积极分子阶段','约1年',[['入党申请书','手写约3000字，400字方格纸'],['群团组织推优评测表','推优时填写'],['入党积极分子培养考察登记表','记录培养考察情况'],['积极分子党课结业证书','党课合格后颁发']]],
+  ['发展对象阶段','约2-3个月',[['入党自传','个人成长经历、家庭情况'],['政审材料','政治审查材料'],['思想汇报','每季度一篇，约4-10篇'],['党校培训结业证书','确定发展对象后参加'],['成绩单','学习成绩是重要评选条件']]],
+  ['预备党员阶段','1年',[['入党志愿书','正式入党材料'],['预备党员考察登记表','预备期一年考察'],['思想汇报','预备期间4篇']]]],
+ notes:[['⚠️','入党申请书落款日期','建议最后一行落款日期先空着，确定积极分子时再填——日期需与《入党积极分子培养考察登记表》一致，提前写错要整页重抄。'],
+  ['🔴','指导思想一字不差','写"党的指导思想/行动指南"必须完整准确：马克思列宁主义、毛泽东思想、邓小平理论、"三个代表"重要思想、科学发展观、习近平新时代中国特色社会主义思想。错漏任何一处都可能被要求重写。'],
+  ['🔴','两个先锋队完整表述','必须写全："中国共产党是中国工人阶级的先锋队，同时是中国人民和中华民族的先锋队"，不能省"同时是"、不能颠倒顺序。建议连同"一个领导核心""三个代表"整套写。'],
+  ['🔄','组织关系转接','积极分子/发展对象转往他校他单位不一定被认可，可能要重新发展；毕业前已转预备党员则不受影响，转正当继承。注意留档电子证明材料。'],
+  ['📚','成绩与任职','成绩好是首要条件但非充分条件；建议有干部任职经历并积累志愿时长，具体以导员、院团委书记意见为准。'],
+  ['⏱️','发展时长','全流程最快2年3个月；积极分子到发展对象可能延长，最长案例约3年9个月。']]};
+let partyTab='overview',partyBatch=0;
+function pgParty(){const pg=$('#pg');
+  const tabs=[['overview','📊 总览'],['timeline','📅 时间线'],['materials','📋 材料清单'],['notes','⚠️ 注意事项']];
+  pg.innerHTML=`<div class="page-h"><h2>入党日程表</h2><span class="hint">流程指南 · 批次安排 · 材料清单 · 避坑须知</span></div>
+  <div class="grid g3">${PARTY.stats.map(s=>`<div class="card stat"><span class="ico">${s[0]}</span>
+    <span class="v" style="font-size:17px">${s[2]}</span><span class="l">${s[1]}</span>
+    <div style="font-size:11px;color:var(--mut);margin-top:6px;line-height:1.5">${s[3]}</div></div>`).join('')}</div>
+  <div class="chips" style="margin-top:14px">${tabs.map(t=>`<button class="fchip ${partyTab===t[0]?'on':''}" onclick="partyTab='${t[0]}';pgParty()">${t[1]}</button>`).join('')}</div>
+  <div id="pt"></div>`;
+  const el=$('#pt');
+  if(partyTab==='overview')el.innerHTML=`<div class="card"><h3><span class="dot"></span>入党整体流程</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">${PARTY.flow.map((f,i)=>`${i?'<span style="color:var(--mut)">→</span>':''}<span class="chip red" style="font-size:12px;padding:7px 12px">${f[0]} ${f[1]}</span>`).join('')}</div>
+    <div class="grid g3" style="margin-top:14px">${PARTY.flow.map(f=>`<div style="font-size:12px;color:var(--mut);line-height:1.5"><b style="color:var(--ink)">${f[1]}</b><br>${f[2]}</div>`).join('')}</div></div>
+    <div class="grid g2" style="margin-top:14px">${PARTY.batches.map((b,i)=>`<a class="card" onclick="partyBatch=${i};partyTab='timeline';pgParty()"><div style="display:flex;gap:8px;align-items:center"><b>${b.n}</b><span class="chip ${b.cls||'gray'}">${b.st}</span></div>
+    <div style="font-size:12px;color:var(--mut);margin:6px 0">${b.t}</div><div style="font-size:12.5px">🎯 ${b.target}</div></a>`).join('')}</div>`;
+  if(partyTab==='timeline'){const b=PARTY.batches[partyBatch];
+    el.innerHTML=`<div class="chips">${PARTY.batches.map((x,i)=>`<button class="fchip ${partyBatch===i?'on':''}" onclick="partyBatch=${i};pgParty()">${x.n}</button>`).join('')}</div>
+    <div class="card"><h3><span class="dot"></span>${b.n} · ${b.t} <span class="chip ${b.cls||'gray'}" style="margin-left:6px">${b.st}</span></h3>
+    ${b.ms.map((m,i)=>`<div class="vrow"><span class="nm" style="width:96px;font-weight:600;color:var(--red-d)">${m[0]}</span>
+    <span style="width:10px;height:10px;border-radius:50%;background:${i===0?'var(--red)':'var(--gold)'};flex-shrink:0"></span>
+    <span style="flex:1;font-size:13.5px">${m[1]}</span></div>`).join('')}
+    <div class="rem warn" style="margin-top:10px"><span class="ic">🎯</span><span class="t">目标：${b.target}</span></div></div>`}
+  if(partyTab==='materials'){const key='cysl_mat';let ck={};try{ck=JSON.parse(localStorage.getItem(key))||{}}catch(e){}
+    const tot=PARTY.materials.reduce((s,m)=>s+m[2].length,0),done=Object.values(ck).filter(Boolean).length;
+    el.innerHTML=`<div class="card"><h3><span class="dot"></span>材料准备进度 ${done}/${tot}</h3><div class="pbar"><i style="width:${tot?done/tot*100:0}%"></i></div></div>
+    ${PARTY.materials.map((m,mi)=>`<div class="card" style="margin-top:14px"><h3><span class="dot"></span>${m[0]} <span class="chip" style="margin-left:4px">${m[1]}</span></h3>
+    ${m[2].map((it,ii)=>`<div class="vrow" onclick="(function(){let c=JSON.parse(localStorage.getItem('${key}')||'{}');c['${mi}-${ii}']=!c['${mi}-${ii}'];localStorage.setItem('${key}',JSON.stringify(c));pgParty()})()" style="cursor:pointer">
+    <span style="font-size:17px">${ck[mi+'-'+ii]?'✅':'⬜'}</span><span style="flex:1"><b style="font-size:13.5px">${it[0]}</b><br><small style="color:var(--mut)">${it[1]}</small></span></div>`).join('')}</div>`).join('')}`}
+  if(partyTab==='notes')el.innerHTML=PARTY.notes.map(n=>`<div class="card" style="margin-bottom:12px"><h3>${n[0]} ${n[1]}</h3><div style="font-size:13.5px;line-height:1.7;color:#4a3d38">${n[2]}</div></div>`).join('')
+}
+
+/* ================= 团务知识库 ================= */
+const KNOW=[
+ {t:'"三会两制一课" 制度',icon:'🏛️',body:`团内组织生活的基本制度，出自《中国共产主义青年团支部工作条例（试行）》：
+【三会】
+· 支部团员大会：支部最高议事机构，每季度至少1次。议题含学习上级精神、选举、评议、推优等，决议须半数以上有表决权团员通过。
+· 支部委员会：大会闭会期间的领导机构，每月至少1次。研究支部日常事务、工作计划与分工落实。
+· 团小组会：按团小组开展，组织学习、交流思想、落实支部分工，按需开展。
+
+【两制】
+· 团员教育评议制度：年度开展，围绕思想、学习、工作、纪律开展自评互评，评出优秀/合格/基本合格/不合格等次。
+· 团员年度团籍注册制度：每年1次，结合教育评议进行，是团员团籍连续有效的必要程序，一般结合"智慧团建"系统线上完成。
+
+【一课】
+· 团课：团员教育的主要形式，每季度至少1次。围绕党的理论、团章团史、形势政策开展，可邀请老师/支委/优秀团员讲授。`},
+ {t:'《团章》核心要点',icon:'📖',body:`· 性质：中国共产主义青年团是中国共产党领导的先进青年的群团组织，是党的助手和后备军。
+· 团员年龄：14周岁以上、28周岁以下的中国青年可申请入团；年满28岁未任团内职务应办理离团。
+· 团员义务：学习理论、执行决议、按时缴纳团费、参加组织生活、发挥模范作用。
+· 团员权利：选举权/被选举权/表决权、参加团的活动、对团的工作提出建议、申辩与申诉。
+· 组织原则：民主集中制。团的全国代表大会每5年一次；基层组织包括团的基层委员会、总支部委员会、支部委员会。
+· 纪律处分：警告、严重警告、撤销团内职务、留团察看、开除团籍。`},
+ {t:'发展团员流程',icon:'🌱',body:`1. 提交入团申请书 → 2. 确定为入团积极分子（培养考察不少于3个月）→ 3. 确定为发展对象 → 4. 填写《入团志愿书》→ 5. 支部大会讨论表决 → 6. 上级团委审批 → 7. 入团宣誓、颁发团徽团员证。
+要点：两名团员作介绍人；表决须半数以上通过；宣誓为必备程序。`},
+ {t:'"推优入党"流程',icon:'🌟',body:`推优 = 团组织推荐优秀团员作党的发展对象，是团员入党的主渠道。
+1. 支部委员会酝酿提名 → 2. 支部团员大会民主评议/表决 → 3. 团支部填写《推优表》报上级团委 → 4. 上级团委审核后向党支部推荐 → 5. 党支部确定入党积极分子。
+要点：团员入党一般应经团组织推优；推优有效期按上级党组织规定（通常一年）。`},
+ {t:'"智慧团建"系统操作',icon:'💻',body:`· 团员电子档案：组织关系转接、团籍注册均在线办理；转接需原支部与新支部双端确认。
+· 留痕同步：每次"三会两制一课"活动后3日内，在系统录入活动信息（时间/主题/人数/摘要/照片），即"网上团支部"动态更新。
+· 教育评议：评议结果在系统内确认；团籍注册以年度评议结果为依据在线完成。
+· 管理员：支部书记/组织委员持管理员账号维护成员与活动数据。`},
+ {t:'主题团日怎么开',icon:'🚩',body:`一月一主题，支部全员参加，建议流程：
+确定主题（结合重要纪念日/上级部署/专业特色）→ 方案策划 → 活动实施（学习+实践+交流）→ 三件套留痕（签到表+记录+照片）→ 3日内归档+智慧团建同步 → 总结复盘。
+常见主题：理论学习、红色寻访、志愿服务、专业实践（如网络安全宣传）、文体共建。`}];
+function pgKnowledge(){$('#pg').innerHTML=`<div class="page-h"><h2>团务知识库</h2><span class="hint">制度原文要点 · 随时可查可讲</span></div>
+  ${KNOW.map(k=>`<div class="card" style="margin-bottom:12px"><h3>${k.icon} ${k.t}</h3>
+  <div class="paper" style="border:none;padding:4px 0 0">${esc(k.body)}</div></div>`).join('')}`}
+
+/* ================= 官方公告（feed.json 数据源） ================= */
+let FEED=null;
+async function fetchFeed(){try{const r=await fetch('data/feed.json?t='+Date.now());if(r.ok)FEED=await r.json()}catch(e){}
+  if(!FEED)try{FEED=JSON.parse(localStorage.getItem('cysl_feed_cache'))}catch(e){}
+  if(FEED)localStorage.setItem('cysl_feed_cache',JSON.stringify(FEED));
+  const h=$('#official-hint');if(h&&FEED)h.textContent=FEED.notices&&FEED.notices.length?FEED.notices[0].title:'已同步官方内容'}
+function pgOfficial(){const pg=$('#pg');
+  pg.innerHTML=`<div class="page-h"><h2>官方公告</h2><span class="hint">由支委通过网站数据统一发布 · App 自动/手动同步 · 版本 v${FEED?FEED.version:'—'}</span>
+  <button class="btn ghost sm" style="margin-left:auto" onclick="fetchFeed().then(()=>pgOfficial())">↻ 检查更新</button></div>
+  ${FEED?`
+  ${(FEED.notices||[]).map(n=>`<div class="card" style="margin-bottom:12px"><div style="display:flex;gap:8px;align-items:center">
+    <span class="chip ${n.pin?'red':''}">${n.pin?'📌 置顶':'📣'}</span><b>${esc(n.title)}</b>
+    <span style="margin-left:auto;font-size:11.5px;color:var(--mut)">${esc(n.date||'')}</span></div>
+    <div style="font-size:13.5px;line-height:1.7;margin-top:8px;white-space:pre-wrap">${esc(n.body)}</div></div>`).join('')}
+  ${(FEED.schedule||[]).length?`<div class="card"><h3><span class="dot"></span>官方日程</h3>
+    ${FEED.schedule.map(s=>`<div class="vrow"><span class="nm" style="width:96px;font-weight:600;color:var(--red-d)">${esc(s.date)}</span>
+    <span style="flex:1;font-size:13.5px">${esc(s.title)}${s.loc?' · '+esc(s.loc):''}</span></div>`).join('')}</div>`:''}`
+  :'<div class="empty"><span class="big">📡</span>暂未获取到官方数据<br><small>检查网络后点击"检查更新"</small></div>'}
+  <div style="font-size:11px;color:var(--mut);margin-top:14px">数据源：站点 <code>data/feed.json</code>（隐藏端点，不在导航展示）。支委更新仓库中的该文件即可向所有 App/网页端推送新团课日程、志愿工时信息等。</div>`}
+fetchFeed();
+
 function modal(html){const r=$('#modal-root');r.className='on';
   r.innerHTML=`<div class="mback" onclick="closeModal()"></div><div class="mbox">${html}</div>`}
 window.closeModal=()=>{$('#modal-root').className='';$('#modal-root').innerHTML=''};
