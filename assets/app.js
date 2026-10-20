@@ -42,7 +42,7 @@ function seed(){
     [82,'共青团员'],[84,'共青团员'],[85,'共青团员']];
   ROSTER.forEach(([tail,pol],i)=>{
     const kind=pol.includes('党员')?'党员':pol.includes('群众')?'群众':'团员';
-    members.push({id:i+1,name:kind+tail,sid:'QSX2026____'+tail,political:pol,role:i<4?roles[i]:kind})});
+    members.push({id:i+1,name:kind+tail,sid:String(tail),political:pol,role:''})});
   const Y=2025; // 示例学年（2025-2026），全部为可编辑模板
   const R=(cat,mm,dd,title,summary,extra={})=>({id:uid()+Math.floor(Math.random()*1e3),category:cat,title,
     date:new Date(Y+(mm>=9?0:1),mm-1,dd).getTime(),location:'【示例】旗山校区',attendees:0,
@@ -502,7 +502,7 @@ function listMembers(){const q=memQ.toLowerCase();
     <span style="width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:17px;
     background:${m.political==='共青团员'?'#fbeaea':'#f0ece6'}">${m.political==='共青团员'?'🚩':'🌱'}</span>
     <div style="flex:1;min-width:0"><b>${esc(mask(m.name))}</b>
-    <div style="font-size:11px;color:var(--mut)">${esc(m.role||m.political)}${m.sid&&m.sid!=='________'?' · '+esc(m.sid):''}</div></div>
+    <div style="font-size:11px;color:var(--mut)">${esc(m.political)}${m.sid?' · 尾号 '+esc(m.sid):''}${m.role?' · '+esc(m.role):''}</div></div>
     ${canEdit()?`<button class="btn ghost sm" onclick="editMember(${m.id})">✎</button>`:''}</div></div>`).join('')
     ||'<div class="empty" style="grid-column:1/-1">未找到成员</div>'}
 window.editMember=id=>{const m=id?DB.members.find(x=>x.id==id):{name:'',sid:'',political:'共青团员',role:''};
