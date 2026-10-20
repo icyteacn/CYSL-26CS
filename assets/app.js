@@ -34,8 +34,10 @@ async function sha(s){const b=await crypto.subtle.digest('SHA-256',new TextEncod
 function seed(){
   const members=[];
   const roles=['团支部书记','副书记','组织委员','宣传委员'];
-  for(let i=1;i<=26;i++)members.push({id:i,name:'团员'+String(i).padStart(2,'0'),sid:'________',political:'共青团员',role:i<=4?roles[i-1]:''});
-  for(let i=1;i<=8;i++)members.push({id:100+i,name:'青年'+String(i).padStart(2,'0'),sid:'________',political:'群众',role:''});
+  for(let i=1;i<=26;i++)members.push({id:i,name:'团员'+(10+i),sid:'________'+(10+i),political:'共青团员',role:i<=4?roles[i-1]:''});
+  for(let i=1;i<=8;i++)members.push({id:100+i,name:'群众'+(50+i),sid:'________'+(50+i),political:'群众',role:''});
+  members.push({id:201,name:'党员77',sid:'________77',political:'中共党员',role:'党员'});
+  members.push({id:202,name:'团员77',sid:'________77',political:'共青团员',role:'团员'});
   const Y=2025; // 示例学年（2025-2026），全部为可编辑模板
   const R=(cat,mm,dd,title,summary,extra={})=>({id:uid()+Math.floor(Math.random()*1e3),category:cat,title,
     date:new Date(Y+(mm>=9?0:1),mm-1,dd).getTime(),location:'【示例】旗山校区',attendees:0,
