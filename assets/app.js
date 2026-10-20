@@ -34,10 +34,15 @@ async function sha(s){const b=await crypto.subtle.digest('SHA-256',new TextEncod
 function seed(){
   const members=[];
   const roles=['团支部书记','副书记','组织委员','宣传委员'];
-  for(let i=1;i<=26;i++)members.push({id:i,name:'团员'+(10+i),sid:'________'+(10+i),political:'共青团员',role:i<=4?roles[i-1]:''});
-  for(let i=1;i<=8;i++)members.push({id:100+i,name:'群众'+(50+i),sid:'________'+(50+i),political:'群众',role:''});
-  members.push({id:201,name:'党员77',sid:'________77',political:'中共党员',role:'党员'});
-  members.push({id:202,name:'团员77',sid:'________77',political:'共青团员',role:'团员'});
+  const ROSTER=[[50,'共青团员'],[51,'中共党员'],[52,'共青团员'],[53,'群众'],[55,'中共党员'],[56,'群众'],
+    [57,'共青团员'],[58,'中共党员'],[59,'共青团员'],[60,'群众'],[61,'共青团员'],[62,'共青团员'],
+    [63,'共青团员'],[64,'共青团员'],[65,'中共党员'],[66,'共青团员'],[67,'共青团员'],[68,'群众'],
+    [69,'共青团员'],[70,'群众'],[71,'群众'],[72,'共青团员'],[73,'共青团员'],[74,'群众'],[75,'共青团员'],
+    [77,'中共党员'],[77,'共青团员'],[78,'群众'],[79,'共青团员'],[80,'中共党员'],[81,'共青团员'],
+    [82,'共青团员'],[84,'共青团员'],[85,'共青团员']];
+  ROSTER.forEach(([tail,pol],i)=>{
+    const kind=pol.includes('党员')?'党员':pol.includes('群众')?'群众':'团员';
+    members.push({id:i+1,name:kind+tail,sid:'QSX2026____'+tail,political:pol,role:i<4?roles[i]:kind})});
   const Y=2025; // 示例学年（2025-2026），全部为可编辑模板
   const R=(cat,mm,dd,title,summary,extra={})=>({id:uid()+Math.floor(Math.random()*1e3),category:cat,title,
     date:new Date(Y+(mm>=9?0:1),mm-1,dd).getTime(),location:'【示例】旗山校区',attendees:0,
