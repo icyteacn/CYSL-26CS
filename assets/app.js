@@ -104,7 +104,7 @@ function mask(n){if(!SET().privacy)return n;return n.replace(/^(\S)/,'$1**')}
 function st(){
   const now=Date.now();
   const rec=DB.records,vol=DB.volunteers;
-  const comp=m=>m.political==='共青团员',yout=m=>m.political==='群众';
+  const comp=m=>m.political!=='群众'&&m.political!=='境外线上团员',yout=m=>m.political==='群众';
   const done=r=>r.signin&&r.minutes&&r.archived;
   const cnt=(cat,yr)=>rec.filter(r=>r.category===cat&&new Date(r.date).getFullYear()===yr).length;
   const yr=new Date().getFullYear();
@@ -794,6 +794,10 @@ function pgOfficial(){const pg=$('#pg');
     <span class="chip ${n.pin?'red':''}">${n.pin?'📌 置顶':'📣'}</span><b>${esc(n.title)}</b>
     <span style="margin-left:auto;font-size:11.5px;color:var(--mut)">${esc(n.date||'')}</span></div>
     <div style="font-size:13.5px;line-height:1.7;margin-top:8px;white-space:pre-wrap">${esc(n.body)}</div></div>`).join('')}
+  ${(FEED.records||[]).length?`<div class="card" style="margin-bottom:12px"><h3><span class="dot"></span>官方留痕台账（只读）</h3>
+    ${FEED.records.map(r=>`<div class="vrow"><span class="nm" style="width:96px;font-weight:600;color:var(--red-d)">${esc(r.date||'')}</span>
+    <span style="flex:1;font-size:13.5px"><b>${esc(r.title||'')}</b>${r.category?' · '+esc(r.category):''}${r.attendees?' · '+r.attendees+'人':''}${r.summary?'<div style="font-size:12px;color:var(--mut);margin-top:2px">'+esc(r.summary)+'</div>':''}</span></div>`).join('')}
+    <div style="font-size:11px;color:var(--mut);margin-top:8px">以上为支委统一发布的官方留痕，与个人登记记录区分展示</div></div>`:''}
   ${(FEED.schedule||[]).length?`<div class="card"><h3><span class="dot"></span>官方日程</h3>
     ${FEED.schedule.map(s=>`<div class="vrow"><span class="nm" style="width:96px;font-weight:600;color:var(--red-d)">${esc(s.date)}</span>
     <span style="flex:1;font-size:13.5px">${esc(s.title)}${s.loc?' · '+esc(s.loc):''}</span></div>`).join('')}</div>`:''}`
