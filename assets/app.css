@@ -190,7 +190,18 @@ canvas.chart{width:100%;display:block}
 .lockbox input::placeholder{color:rgba(255,255,255,.4);letter-spacing:.1em}
 .lockroles{display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap}
 .lockroles button{padding:8px 16px;border-radius:20px;font-size:12.5px;background:rgba(255,255,255,.12);color:#fff;transition:.2s}
-.lockroles button:hover{background:rgba(232,180,90,.35)}
+.lockroles button:hover{background:rgba(255,255,255,.22)}
+.lockroles .m-gray{background:rgba(255,255,255,.10);color:rgba(255,255,255,.65)}
+.btn.red{background:linear-gradient(135deg,#c62828,#8f1d22)}
+.btn.big{padding:12px 18px;font-size:14.5px;font-weight:700}
+#codebox input{width:100%;padding:10px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.10);color:#fff;font-size:14px;box-sizing:border-box}
+#codebox input::placeholder{color:rgba(255,255,255,.4)}
+.role-panel{margin-top:14px}
+.role-panel .rp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.role-panel .rp-item{background:var(--cream);border-radius:12px;padding:10px 12px;text-align:center}
+.role-panel .rp-item b{display:block;font-size:19px;color:var(--red-d)}
+.role-panel .rp-item span{font-size:11.5px;color:var(--mut)}
 
 /* ---------- showcase 出片 ---------- */
 .showcase{position:fixed;inset:0;z-index:70;background:radial-gradient(1200px 700px at 70% -10%,#a32330,#4a0f16 65%,#2b080d);
