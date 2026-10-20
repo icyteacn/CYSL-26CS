@@ -192,14 +192,17 @@ window.logout=()=>{sessionStorage.removeItem(AUTH_KEY);location.hash='#/dashboar
 function renderLock(){$('#app').innerHTML=`<div class="lock"><div class="lockbox">
   <div class="flag">⚑</div><h2>CYSL · 支部数字化工作台</h2>
   <p>${BRANCH}<br>通用团支部数字化建设体系 · 数据仅存本机 · 隐私脱敏</p>
-  <input id="code" type="password" maxlength="20" placeholder="管理口令（支委入口）" autocomplete="off">
-  <button class="btn" style="width:100%" onclick="unlock()">以 支委/支书 身份进入</button>
+  <button class="btn red big" style="width:100%" onclick="enterAs('member')">✊ 团员 · 青年群众 进入</button>
   <div class="lockroles">
-    <button onclick="enterAs('member')">我是团员 · 仅查看+签到</button>
-    <button onclick="enterAs('youth')">我是青年群众 · 仅查看</button>
+    <button class="m-gray" onclick="toggleCode()">🔐 支委 / 支书 管理入口</button>
   </div>
-  <p style="margin-top:16px;font-size:10.5px;opacity:.5">支委初始口令见部署 README，可在"体系"页修改 · 连续错误将提示</p>
+  <div id="codebox" style="display:none;margin-top:10px">
+    <input id="code" type="password" maxlength="20" placeholder="管理口令" autocomplete="off">
+    <button class="btn" style="width:100%;margin-top:8px;background:#6b6560" onclick="unlock()">以管理身份进入</button>
+  </div>
+  <p style="margin-top:16px;font-size:10.5px;opacity:.5">管理口令由支委掌握，可在"体系"页修改 · 数据仅存本机</p>
   </div></div>`;const i=$('#code');i&&i.addEventListener('keydown',e=>{if(e.key==='Enter')unlock()})}
+window.toggleCode=()=>{const b=$('#codebox');b.style.display=b.style.display==='none'?'block':'none';$('#code')&&$('#code').focus()};
 window.enterAs=r=>{sessionStorage.setItem(AUTH_KEY,JSON.stringify({role:r,ts:Date.now()}));nav()};
 window.unlock=async()=>{const v=$('#code').value.trim();
   if(await codeOK(v)){sessionStorage.setItem(AUTH_KEY,JSON.stringify({role:'committee',ts:Date.now()}));nav()}
@@ -217,6 +220,7 @@ function pgDash(){const s=st(),pg=$('#pg');
       <div class="n"><b>0</b><span>境外线上团员</span></div>
       <div class="n"><b>${s.recCnt}</b><span>留痕活动</span></div>
     </div></div>
+  ${rolePanel(s)}
   <div class="grid g3" style="margin-top:14px">
     <div class="card hl"><h3><span class="dot"></span>支部建设指数</h3>
       <div class="ring-wrap"><canvas class="chart" id="ring"></canvas>
@@ -250,6 +254,36 @@ function pgDash(){const s=st(),pg=$('#pg');
       ${DB.records.slice().sort((a,b)=>b.date-a.date).slice(0,5).map(r=>rowHTML(r)).join('')||'<div class="empty"><span class="big">🗂</span>暂无留痕</div>'}
       <div style="text-align:center;margin-top:8px"><a class="btn ghost sm" href="#/records">查看全部 ›</a></div></div>
   </div>`;
+
+/** 角色差异化面板：支委看「管理速览」，团员/群众看「我的支部生活」 */
+function rolePanel(s){
+  if(role()==='committee'){
+    const miss=DB.records.filter(r=>!(r.signin&&r.minutes&&r.photos&&r.photos.length)).length;
+    const unsynced=DB.records.filter(r=>!r.synced).length;
+    const canSign=DB.records.filter(r=>day0(r.date)>=today()-3*864e5).length;
+    return `<div class="card role-panel" style="border-left:4px solid var(--red)"><h3><span class="dot"></span>🛠 支委管理速览</h3>
+      <div class="rp-grid">
+        <a class="rp-item" href="#/records"><b>${miss}</b><span>缺三件套记录</span></a>
+        <a class="rp-item" href="#/records"><b>${unsynced}</b><span>未同步智慧团建</span></a>
+        <a class="rp-item" href="#/system"><b>${s.reminders.length}</b><span>规范度提醒</span></a>
+        <a class="rp-item" href="#/members"><b>${s.memberCnt+s.youthCnt}</b><span>成员管理</span></a>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+        <a class="btn sm" href="#/records">＋ 记一条留痕</a>
+        <a class="btn ghost sm" href="#/volunteer">＋ 录志愿工时</a>
+        <a class="btn ghost sm" href="#/official">📣 查看官方公告</a>
+      </div></div>`;
+  }
+  const canSign=DB.records.filter(r=>day0(r.date)>=today()-3*864e5&&day0(r.date)<=today()+7*864e5).length;
+  return `<div class="card role-panel" style="border-left:4px solid #e8b45a"><h3><span class="dot"></span>✊ 我的支部生活</h3>
+    <div class="rp-grid">
+      <a class="rp-item" href="#/records"><b>${canSign}</b><span>近期可签到活动</span></a>
+      <a class="rp-item" href="#/calendar"><b>${s.next?Math.max(0,Math.ceil((day0(s.next.date)-today())/864e5))+' 天':'—'}</b><span>距下次活动</span></a>
+      <a class="rp-item" href="#/party"><b>${s.volHours}</b><span>支部累计工时</span></a>
+      <a class="rp-item" href="#/knowledge"><b>5批次</b><span>入党批次日历</span></a>
+    </div>
+    <div style="font-size:12px;color:var(--mut);margin-top:10px">💡 活动前打开页面点「扫码签到」即完成留痕；工时与成长记录由支委统一登记，可在「志愿」页查看支部排名。</div></div>`;
+}
   ring($('#ring'),index());radar($('#radar'),specRows().slice(0,6).map(r=>r.pct));
   if(s.next){const end=day0(s.next.date)+9*36e5;const tick=()=>{let d=Math.max(0,end-Date.now());
     const u={天:d/864e5|0,时:d/36e5%24|0,分:d/6e4%60|0,秒:d/1e3%60|0};
@@ -503,6 +537,9 @@ function pgSystem(){const pg=$('#pg');const s=st();
     <div class="grid g3">
       <button class="btn ghost" onclick="exportJSON()">⬇ 导出 JSON 备份</button>
       <button class="btn ghost" onclick="document.getElementById('imp').click()">⬆ 导入 JSON 恢复</button>
+      <button class="btn ghost" onclick="exportCSV()">📊 留痕台账 → Excel(CSV)</button>
+      <button class="btn ghost" onclick="exportVolCSV()">📊 志愿工时 → Excel(CSV)</button>
+      <button class="btn ghost" onclick="copyLedger()">📋 复制台账摘要</button>
       <button class="btn danger" onclick="resetAll()">⟲ 重置为初始示例</button>
     </div><input id="imp" type="file" accept=".json" style="display:none" onchange="importJSON(this)">
     <div style="font-size:11.5px;color:var(--mut);margin-top:10px">数据仅存于本机浏览器（localStorage），不上传服务器；换机请先导出备份。</div></div>
@@ -524,6 +561,23 @@ window.saveHonor=()=>{const t=$('#f-ht').value.trim();if(!t)return toast('请填
 window.delHonor=id=>{DB.honors=DB.honors.filter(h=>h.id!=id);save();pgSystem()};
 window.exportJSON=()=>{const b=new Blob([JSON.stringify(DB,null,1)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='cysl-backup-'+fmt(Date.now())+'.json';a.click();toast('已导出备份')};
+const _csv=(rows,name)=>{const csv='﻿'+rows.map(r=>r.map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=name;a.click()};
+window.exportCSV=()=>{_csv([['日期','类型','标题','地点','人数','签到表','会议记录','照片数','已同步智慧团建','已归档','摘要'],
+  ...DB.records.slice().sort((a,b)=>a.date-b.date).map(r=>[fmtYMD(r.date),r.type,r.title,r.location,r.attendees||0,
+  r.signin?'✓':'',r.minutes?'✓':'',r.photos||0,r.synced?'✓':'',r.archived?'✓':'',r.summary])],
+  'cysl-留痕台账-'+fmt(Date.now())+'.csv');toast('已导出，Excel/WPS 可直接打开')};
+window.exportVolCSV=()=>{const byM={},cnt={};DB.volunteers.forEach(v=>{byM[v.memberId]=(byM[v.memberId]||0)+v.hours;cnt[v.memberId]=(cnt[v.memberId]||0)+1});
+  _csv([['姓名','政治面貌','累计工时(h)','服务次数'],
+  ...DB.members.map(m=>[mask(m.name),m.political,byM[m.id]||0,cnt[m.id]||0])],
+  'cysl-志愿工时-'+fmt(Date.now())+'.csv');toast('已导出（脱敏模式生效中则姓名已遮蔽）')};
+window.copyLedger=async()=>{const s=st();
+  const lines=[`【${BRANCH} · 台账摘要 ${fmt(Date.now())}】`,...specRows().map(r=>`${r.name}：${r.n}/${r.quota}`),
+  `留痕 ${s.recCnt} 条 · 志愿工时 ${s.volHours}h · 照片 ${s.photoCnt} 张`,'',
+  '日期\t类型\t标题\t地点\t人数\t三件套',
+  ...DB.records.slice().sort((a,b)=>b.date-a.date).map(r=>[fmtYMD(r.date),r.type,r.title,r.location,r.attendees||0,
+  (r.signin&&r.minutes&&r.photos)?'✓':'缺'].join('\t'))];
+  try{await navigator.clipboard.writeText(lines.join('\n'));toast('已复制，直接粘贴进 Excel/微信即可')}catch(e){toast('复制失败：'+e.message)}};
 window.importJSON=inp=>{const f=inp.files[0];if(!f)return;const r=new FileReader();
   r.onload=()=>{try{const d=JSON.parse(r.result);if(!d.members||!d.records)throw 0;
     if(confirm('导入将覆盖当前全部数据，确定？')){DB=d;save();pgSystem();toast('已恢复 '+d.records.length+' 条留痕')}}catch(e){toast('文件格式不正确')}};r.readAsText(f)};
