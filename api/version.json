@@ -1,7 +1,7 @@
 {
- "versionCode": 19,
- "versionName": "1.0.19",
+ "versionCode": 20,
+ "versionName": "1.0.20",
  "apk": "api/leaguetrace-latest.apk",
- "notes": "指数卡紧凑化/洞察图例/10月台账/纪要导出/一键年报/应用内更新",
- "updated": "2026-10-21"
+ "notes": "出席人员选择器·缺席防冲突·按钮恢复·10-22长征线上团日·网站台账同步",
+ "updated": "2026-10-23"
 }

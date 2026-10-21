@@ -174,7 +174,7 @@ function qrImg(text,sz=200){return `<img src="${qrURL(text,sz)}" onerror="this.o
 
 /* ================= 路由 ================= */
 let cur='dashboard';
-const routes={dashboard:pgDash,records:pgRecords,record:pgRecord,calendar:pgCalendar,
+const routes={dashboard:pgDash,records:pgRecords,record:pgRecord,frecord:pgFeedRec,calendar:pgCalendar,
   volunteer:pgVol,projects:pgProjects,project:pgProject,members:pgMembers,system:pgSystem,checkin:pgCheckin,
   party:pgParty,knowledge:pgKnowledge,official:pgOfficial};
 /* 深色主题 */
@@ -322,7 +322,7 @@ function pgDash(){const s=st(),pg=$('#pg');
         <span class="ic">${r.lvl==='bad'?'⚠':'◔'}</span><span class="t">${esc(r.t)}<br><small>${esc(r.sub)}</small></span><span>›</span></div>`).join('')
       :'<div class="empty"><span class="big">✅</span>各项留痕规范运转良好</div>'}</div>
     <div class="card"><h3><span class="dot"></span>最近留痕</h3>
-      ${DB.records.slice().sort((a,b)=>b.date-a.date).slice(0,5).map(r=>rowHTML(r)).join('')||'<div class="empty"><span class="big">🗂</span>暂无留痕</div>'}
+      ${DB.records.concat(feedRows()).sort((a,b)=>b.date-a.date).slice(0,5).map(r=>rowHTML(r)).join('')||'<div class="empty"><span class="big">🗂</span>暂无留痕</div>'}
       <div style="text-align:center;margin-top:8px"><a class="btn ghost sm" href="#/records">查看全部 ›</a></div></div>
   </div>`;
 
@@ -361,10 +361,11 @@ function rolePanel(s){
     Object.entries(u).forEach(([k,v])=>{const e=$('#cd-'+k);if(e)e.textContent=String(v).padStart(2,'0')})};
     tick();const iv=setInterval(tick,1e3);if(!window.__cd)window.__cd=iv;else{clearInterval(window.__cd);window.__cd=iv}}
 }
-function rowHTML(r){return`<a class="row" href="#/record/${r.id}">
+function rowHTML(r){return`<a class="row" href="#/${r.feed?'frecord':'record'}/${r.feed?r.fid:r.id}">
   <span class="cat" style="background:#f5ece4">${CAT_ICON[r.category]||'📌'}</span>
   <span class="tt"><b>${esc(r.title)}</b><small>${fmtYMD(r.date)} · ${esc(r.location)} · ${r.attendees||0}人</small>
-  <span class="badges">${r.signin?'<span class="bd y">签到</span>':'<span class="bd">签到</span>'}
+  <span class="badges">${r.feed?'<span class="bd y">官方</span>':''}
+  ${r.signin?'<span class="bd y">签到</span>':'<span class="bd">签到</span>'}
   ${r.minutes?'<span class="bd y">记录</span>':'<span class="bd">记录</span>'}
   ${r.archived?'<span class="bd y">归档</span>':'<span class="bd">归档</span>'}
   ${r.synced?'<span class="bd y">已同步</span>':''}</span></span>
@@ -372,6 +373,35 @@ function rowHTML(r){return`<a class="row" href="#/record/${r.id}">
 
 /* ================= 留痕列表/详情/编辑 ================= */
 let recFilter={cat:'',q:''};
+
+/* —— 官方台账（feed.json）并入留痕页：只读，与本地记录共存 —— */
+function feedRows(){if(!FEED||!FEED.records)return[];
+  return FEED.records.map((r,i)=>({feed:true,fid:i,
+    category:(r.types&&r.types[0])||r.type||r.category||'其他',
+    types:(r.types&&r.types.length?r.types:[r.type||r.category||'其他']),
+    title:r.title||'',date:r.date?new Date(String(r.date).replace(/\./g,'-')+'T00:00:00').getTime():0,
+    location:r.location||'',attendees:r.attendees||0,host:r.host||'',
+    summary:r.summary||'',expected:r.expected||[],floating:r.floating||[],
+    absent:r.absent||[],observers:r.observers||[],attachments:r.attachments||[],
+    signin:true,minutes:!!r.summary,archived:true,synced:true}))}
+function pgFeedRec(idx){const r=feedRows()[idx],pg=$('#pg');
+  if(!r){pg.innerHTML='<div class="empty">记录不存在</div>';return}
+  const aL=l=>l&&l.length?l.map(x=>`<span class="bd y" style="margin:2px 6px 2px 0;display:inline-block">${esc(x)}</span>`).join(''):'<span style="color:var(--mut)">无</span>';
+  const exp=r.expected.length||r.attendees,real=Math.max(0,exp-r.absent.length);
+  pg.innerHTML=`<div class="page-h"><a href="#/records">‹</a><h2 style="flex:1">${esc(r.title)}</h2><span class="chip red">官方台账 · 只读</span></div>
+  <div class="card">
+    <span class="chip red">${CAT_ICON[r.category]||''} ${esc(r.types.join(' · '))}</span>
+    <dl class="kv" style="margin-top:12px"><dt>日期</dt><dd>${fmtYMD(r.date)}</dd>
+    <dt>地点</dt><dd>${esc(r.location)}</dd><dt>主持人</dt><dd>${esc(r.host)}</dd>
+    <dt>应到</dt><dd>${exp} 人</dd><dt>实到</dt><dd>${real} 人</dd>
+    <dt>缺席</dt><dd>${r.absent.length} 人</dd><dt>流动团员</dt><dd>无</dd>
+    ${r.attachments.length?`<dt>活动资料</dt><dd>${r.attachments.map(a=>{const s=typeof a==='string'?a.split('|'):null;const n=s?s[0]:(a.name||'附件');const u=s?(s[1]||''):(a.url||'');return u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(n)} ↗</a>`:esc(n)}).join('<br>')}</dd>`:''}</dl>
+    <div class="sect">会议内容</div><div class="paper">${esc(r.summary||'（未填写）')}</div></div>
+  <div class="card" style="margin-top:14px"><h3><span class="dot"></span>参会人员</h3>
+    <div class="sect">应参加团员（${r.expected.length}人）</div><div>${aL(r.expected)}</div>
+    <div class="sect">流动团员</div><div><span style="color:var(--mut)">无</span></div>
+    <div class="sect">缺席团员（${r.absent.length}人）</div><div>${aL(r.absent)}</div>
+    <div class="sect">列席人员（${r.observers.length}人）</div><div>${aL(r.observers)}</div></div>`}
 function pgRecords(){const pg=$('#pg');
   pg.innerHTML=`<div class="page-h"><h2>留痕台账</h2><span class="hint">"三件套"留痕标准 · 点击记录看详情</span></div>
   <div class="chips"><button class="fchip ${!recFilter.cat?'on':''}" onclick="setCat('')">全部</button>
@@ -383,8 +413,9 @@ function pgRecords(){const pg=$('#pg');
   listRecords()}
 window.setCat=c=>{recFilter.cat=c;pgRecords()};
 function listRecords(){const q=recFilter.q.toLowerCase();
-  const list=DB.records.filter(r=>(!recFilter.cat||r.category===recFilter.cat)&&
-    (!q||(r.title+r.location+(r.summary||'')).toLowerCase().includes(q))).sort((a,b)=>b.date-a.date);
+  const hit=r=>(!recFilter.cat||(r.types?r.types.includes(recFilter.cat):r.category===recFilter.cat))&&
+    (!q||(r.title+r.location+(r.summary||'')).toLowerCase().includes(q));
+  const list=DB.records.filter(hit).concat(feedRows().filter(hit)).sort((a,b)=>b.date-a.date);
   $('#rl').innerHTML=list.map(r=>rowHTML(r)).join('')||'<div class="empty"><span class="big">🗂</span>没有匹配的留痕记录</div>'}
 function pgRecord(id){const r=DB.records.find(x=>x.id==id),pg=$('#pg');
   if(!r){pg.innerHTML='<div class="empty">记录不存在</div>';return}
