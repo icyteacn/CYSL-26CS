@@ -985,7 +985,7 @@ const STUDY=[
  {c:'实务',t:'团旗、团徽、团歌使用规范',s:'团中央办公厅',u:'https://www.gqt.org.cn',b:'规范团旗团徽制作使用场合，奏唱团歌场合要求。'},
  {c:'实务',t:'“智慧团建”系统操作要点',s:'团中央',u:'https://www.gqt.org.cn',b:'团员电子档案、组织关系转接、活动记录线上管理。'},
 ];
-const STUDY_CATS={讲话:'📣 重要讲话',回信:'✉️ 重要回信贺信',文件:'📜 法规条例与政策文件',报告:'🏛 大会报告与全会精神',寄语:'🌱 五四寄语与节日指示',实务:'🛠 团务实务指引'};
+const STUDY_CATS={特稿:'📰 独家特稿 · 每周更新',讲话:'📣 重要讲话',回信:'✉️ 重要回信贺信',文件:'📜 法规条例与政策文件',报告:'🏛 大会报告与全会精神',寄语:'🌱 五四寄语与节日指示',实务:'🛠 团务实务指引'};
 window._st={q:'',cat:'',pg:0};
 window.stGo=p=>{window._st.pg=p;pgKnowledge();const el=document.querySelector('.sect');el&&el.scrollIntoView()};
 window.stCat=c=>{window._st.cat=c;window._st.pg=0;pgKnowledge()};
