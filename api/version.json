@@ -1,8 +1,9 @@
 {
-  "versionCode": 28,
-  "versionName": "1.0.28",
-  "apk": "api/leaguetrace-latest.apk",
-  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-latest.apk",
-  "notes": "团立项勘误（书记=党员80、预算1700元）；网站禁横向滑动。",
-  "mandatory": false
+  "versionCode": 29,
+  "versionName": "1.0.29",
+  "apk": "api/leaguetrace-v1.0.29.apk",
+  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.29.apk",
+  "notes": "v1.0.29：OTA 提速——多源并行竞速下载（CDN镜像）+ 实时进度条；安装包瘦身至 7.3MB；内置资料图压缩。",
+  "mandatory": false,
+  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.29.apk"
 }
