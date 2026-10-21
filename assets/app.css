@@ -441,3 +441,40 @@ html[data-theme="dark"] .rem{background:#1c1312}
 @media(max-width:640px){.tl:before{left:54px}.tl-item:before{left:38px}
   .tl-date{width:34px;padding-top:10px}.tl-date b{font-size:11.5px}.tl-date span{display:none}
   .tl-item{gap:10px}}
+
+/* ===== 移动端自适应兜底：卡片收窄显示全，不靠裁剪 ===== */
+@media(max-width:560px){
+  /* 卡片与容器全面减压 */
+  .card{padding:14px}
+  .stat{padding:11px 12px}
+  .stat .v{font-size:20px}
+  .hero{padding:20px 16px 16px;border-radius:18px}
+  .hero .nums{gap:6px}
+  .hero .nums b{font-size:17px!important}
+  /* 行内进度/条形行收窄：压掉 JS 里写死的 nm 宽度 */
+  .vrow .nm{width:62px!important;font-size:11.5px}
+  .vrow .hv{width:44px!important;font-size:11px}
+  .hbar .nm{width:50px!important;font-size:11.5px}
+  .hbar .hv{width:38px!important;font-size:11px}
+  /* 文本可断行，防长串撑破 */
+  .card,.paper,.tl-card,.row .tt,.vrow,.kv{overflow-wrap:anywhere;word-break:break-word}
+  .row .tt b{white-space:normal}
+  /* grid/flex 子项允许收缩到内容最小宽以下 */
+  .g2>*,.g3>*,.g4>*,.linkgrid>*,.sc-kpis>*{min-width:0}
+  .row,.vrow,.hbar,.tl-item{min-width:0}
+  /* 表格/详情纸卡：内部横滑保留（这是故意的） */
+  .paper{overflow-x:auto}
+  /* 弹层/扫描面板 */
+  .sc-panel{max-width:100%!important}
+  .kv{grid-template-columns:70px 1fr;font-size:12px}
+  /* 顶栏副标题再收一点 */
+  .topbar .sub{max-width:36vw;font-size:10.5px}
+  /* FAB/回到顶部别贴边 */
+  .fab{right:14px;width:50px;height:50px}
+  #toTop{right:12px}
+}
+@media(max-width:380px){
+  .stat .v{font-size:18px}
+  .vrow .nm{width:56px!important}
+  .hero .nums b{font-size:15px!important}
+}
