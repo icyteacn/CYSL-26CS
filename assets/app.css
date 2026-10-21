@@ -418,3 +418,24 @@ html[data-theme="dark"] .rem{background:#1c1312}
   body{background:#fff}.topbar,.nav,.fab,.noprint{display:none!important}
   main{padding:0} .card{box-shadow:none;border:1px solid #ddd;break-inside:avoid}
 }
+
+/* ===== 学习资料时间线 ===== */
+.tl{position:relative;padding-left:8px}
+.tl:before{content:'';position:absolute;left:70px;top:6px;bottom:6px;width:2px;
+  background:linear-gradient(180deg,var(--brand-gold),var(--line))}
+.tl-item{position:relative;display:flex;gap:14px;margin-bottom:12px;cursor:pointer}
+.tl-item:before{content:'';position:absolute;left:66px;top:14px;width:10px;height:10px;border-radius:50%;
+  background:var(--card);border:2.5px solid var(--brand-gold);transition:background .2s;z-index:1}
+.tl-item.open:before{background:var(--brand-gold)}
+.tl-date{width:56px;flex-shrink:0;text-align:right;padding-top:8px}
+.tl-date b{display:block;font-size:13px;color:var(--red-d);font-variant-numeric:tabular-nums}
+.tl-date span{font-size:10.5px;color:var(--mut)}
+.tl-card{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:10px 14px;transition:transform .15s,box-shadow .15s}
+.tl-item:hover .tl-card{transform:translateX(3px);box-shadow:0 4px 14px rgba(120,20,20,.10)}
+.tl-t{font-size:14px;font-weight:600;line-height:1.45}
+.tl-s{font-size:11px;color:var(--mut);margin-top:3px}
+.tl-b{font-size:13px;line-height:1.7;color:var(--txt);margin:8px 0 4px;white-space:pre-wrap}
+@media(max-width:640px){.tl:before{left:54px}.tl-item:before{left:38px}
+  .tl-date{width:34px;padding-top:10px}.tl-date b{font-size:11.5px}.tl-date span{display:none}
+  .tl-item{gap:10px}}
