@@ -132,6 +132,7 @@ function st(){
       reminders.push({t:`本季度「${n}」待开展`,sub:'制度要求每季度不少于1次',lvl:'warn',go:'#/records'});});
   rec.forEach(r=>{if(r.signin&&r.minutes&&!r.synced)reminders.push({t:`「${r.title}」未同步智慧团建`,sub:fmtYMD(r.date),lvl:'warn',go:'#/record/'+r.id})});
   return{memberCnt:DB.members.filter(comp).length,youthCnt:DB.members.filter(yout).length,
+    partyCnt:DB.members.filter(m=>m.political==='中共党员').length,
     total:DB.members.length,recCnt:rec.length,photoCnt:rec.reduce((s,r)=>s+(r.photos||0),0),
     volHours:vol.reduce((s,v)=>s+v.hours,0),volCnt:vol.length,
     doneCnt:rec.filter(done).length,next,reminders:reminders.slice(0,8),yr,cnt};
@@ -148,7 +149,7 @@ function index(){const rows=specRows();const six=rows.slice(0,6);
   return Math.round(pct*.7+complete*.3)}
 
 /* ================= 图表 ================= */
-function ring(cv,pct,size=170){const c=cv.getContext('2d'),w=cv.width=cv.height=(size*devicePixelRatio);
+function ring(cv,pct,size=170){const fit=cv.clientWidth;if(fit&&fit<size)size=Math.max(120,fit);const c=cv.getContext('2d'),w=cv.width=cv.height=(size*devicePixelRatio);
   cv.style.width=cv.style.height=size+'px';c.scale(devicePixelRatio,devicePixelRatio);
   const cx=size/2,r=cx-13,lw=12;c.lineCap='round';
   c.strokeStyle='#efe3d8';c.lineWidth=lw;c.beginPath();c.arc(cx,cx,r,0,7);c.stroke();
@@ -156,7 +157,7 @@ function ring(cv,pct,size=170){const c=cv.getContext('2d'),w=cv.width=cv.height=
   c.strokeStyle=g;c.beginPath();c.arc(cx,cx,r,-Math.PI/2,-Math.PI/2+Math.PI*2*Math.min(100,pct)/100);c.stroke();
   c.fillStyle='#8f1d22';c.font='800 '+(size*.21)+'px system-ui';c.textAlign='center';c.textBaseline='middle';
   c.fillText(Math.round(pct),cx,cx-6);c.font='11px system-ui';c.fillStyle='#8a7b76';c.fillText('建设指数',cx,cx+size*.15)}
-function radar(cv,vals,size=200){const c=cv.getContext('2d');cv.width=cv.height=size*devicePixelRatio;
+function radar(cv,vals,size=200){const fit=cv.clientWidth||cv.parentElement.clientWidth-28;if(fit&&fit<size)size=Math.max(140,fit);const c=cv.getContext('2d');cv.width=cv.height=size*devicePixelRatio;
   cv.style.width=cv.style.height=size+'px';c.scale(devicePixelRatio,devicePixelRatio);
   const cx=size/2,cy=size/2,r=size/2-30,n=vals.length;
   for(let ring=1;ring<=4;ring++){c.beginPath();for(let i=0;i<=n;i++){const a=-Math.PI/2+i*2*Math.PI/n,rr=r*ring/4;
@@ -260,12 +261,12 @@ function pgDash(){const s=st(),pg=$('#pg');
     <div class="branch">${BRANCH} · 团支部数字化建设体系</div>
     <div class="nums">
       <div class="n"><b>${s.memberCnt}</b><span>在册团员</span></div>
+      <div class="n"><b>${s.partyCnt}</b><span>中共党员</span></div>
       <div class="n"><b>${s.youthCnt}</b><span>青年群众</span></div>
-      <div class="n"><b>0</b><span>境外线上团员</span></div>
       <div class="n"><b>${s.recCnt}</b><span>留痕活动</span></div>
     </div></div>
   ${rolePanel(s)}
-  <div class="grid g3" style="margin-top:14px">
+  <div class="grid g3 hero3" style="margin-top:14px">
     <div class="card hl"><h3><span class="dot"></span>支部建设指数</h3>
       <div class="ring-wrap"><canvas class="chart" id="ring"></canvas>
       <div class="legend">${specRows().slice(0,6).map(r=>`<div class="li"><span class="sw" style="background:${r.pct>=100?'#2e7d4f':r.pct>0?'#e8b45a':'#d8c8bc'}"></span>${r.name} ${r.n}/${r.quota}</div>`).join('')}</div></div></div>
@@ -395,7 +396,7 @@ function feedRows(){if(!FEED||!FEED.records)return[];
     category:(r.types&&r.types[0])||r.type||r.category||'其他',
     types:(r.types&&r.types.length?r.types:[r.type||r.category||'其他']),
     title:r.title||'',date:r.date?new Date(String(r.date).replace(/\./g,'-')+'T00:00:00').getTime():0,
-    location:r.location||'',attendees:r.attendees||0,host:r.host||'',
+    location:r.location||'',attendees:r.attendees||Math.max(0,(r.expected||[]).length-(r.absent||[]).length),host:r.host||'',
     summary:r.summary||'',expected:r.expected||[],floating:r.floating||[],
     absent:r.absent||[],observers:r.observers||[],attachments:r.attachments||[],
     signin:true,minutes:!!r.summary,archived:true,synced:true}))}
@@ -717,7 +718,7 @@ window.doCode=async()=>{const a=$('#f-pw').value,b=$('#f-pw2').value;
   setSet('codeHash',await sha(a));closeModal();toast('口令已更新')};
 window.togglePrivacy=()=>{setSet('privacy',!SET().privacy);pgSystem();toast(SET().privacy?'已开启脱敏':'已关闭脱敏')};
 window.genReport=()=>{const s=st(),y=s.yr,rows=specRows();
-  const txt=`${BRANCH}\n${y} 年度团支部建设工作报告\n${'='.repeat(40)}\n生成时间：${fmt(Date.now())}\n\n一、组织概况\n  在册团员 ${s.memberCnt} 人 · 青年群众 ${s.youthCnt} 人 · 境外线上团员 0 人\n\n二、"三会两制一课"制度落实\n${rows.map(r=>`  ${r.name.padEnd(6,'　')} ${r.n}/${r.quota} 次 ${r.pct>=100?'✓ 达标':'○ 进行中'}`).join('\n')}\n\n三、留痕台账\n  累计留痕活动 ${s.recCnt} 场 · 三件套完备 ${s.doneCnt} 场 · 照片留痕 ${s.photoCnt} 张\n\n四、志愿服务\n  累计 ${s.volHours} 小时 · ${s.volCnt} 人次 · 人均 ${s.total?(s.volHours/s.total).toFixed(1):0} 小时\n\n五、立项进展\n${DB.projects.map(p=>`  [${PSTATUS[p.status]}] ${p.name}（进度${p.progress}%）`).join('\n')||'  暂无'}\n\n六、荣誉台账\n${DB.honors.map(h=>`  ${h.level} · ${h.title}`).join('\n')||'  暂无'}\n\n——本报告由 CYSL 支部数字化工作台自动生成`;
+  const txt=`${BRANCH}\n${y} 年度团支部建设工作报告\n${'='.repeat(40)}\n生成时间：${fmt(Date.now())}\n\n一、组织概况\n  在册团员 ${s.memberCnt} 人 · 中共党员 ${s.partyCnt} 人 · 青年群众 ${s.youthCnt} 人\n\n二、"三会两制一课"制度落实\n${rows.map(r=>`  ${r.name.padEnd(6,'　')} ${r.n}/${r.quota} 次 ${r.pct>=100?'✓ 达标':'○ 进行中'}`).join('\n')}\n\n三、留痕台账\n  累计留痕活动 ${s.recCnt} 场 · 三件套完备 ${s.doneCnt} 场 · 照片留痕 ${s.photoCnt} 张\n\n四、志愿服务\n  累计 ${s.volHours} 小时 · ${s.volCnt} 人次 · 人均 ${s.total?(s.volHours/s.total).toFixed(1):0} 小时\n\n五、立项进展\n${DB.projects.map(p=>`  [${PSTATUS[p.status]}] ${p.name}（进度${p.progress}%）`).join('\n')||'  暂无'}\n\n六、荣誉台账\n${DB.honors.map(h=>`  ${h.level} · ${h.title}`).join('\n')||'  暂无'}\n\n——本报告由 CYSL 支部数字化工作台自动生成`;
   $('#report').innerHTML=`<div class="card" style="margin-top:14px"><h3><span class="dot"></span>${y} 年度报告</h3>
   <div class="paper" style="font-family:ui-monospace,monospace;font-size:12.5px">${esc(txt)}</div>
   <button class="btn" style="margin-top:12px" onclick="window.print()">打印 / 存为 PDF</button></div>`;
@@ -1080,7 +1081,10 @@ let FEED=null;
 async function fetchFeed(){try{const r=await fetch('data/feed.json?t='+Date.now());if(r.ok)FEED=await r.json()}catch(e){}
   if(!FEED)try{FEED=JSON.parse(localStorage.getItem('cysl_feed_cache'))}catch(e){}
   if(FEED)localStorage.setItem('cysl_feed_cache',JSON.stringify(FEED));
-  const h=$('#official-hint');if(h&&FEED)h.textContent=FEED.notices&&FEED.notices.length?FEED.notices[0].title:'已同步官方内容'}
+  const h=$('#official-hint');if(h&&FEED)h.textContent=FEED.notices&&FEED.notices.length?FEED.notices[0].title:'已同步官方内容';
+  // feed 到达后安全重渲染当前页（弹窗/输入中不打断用户操作）
+  if(FEED&&auth()&&!document.querySelector('#modal-root.on')
+    &&!(document.activeElement&&/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)))nav()}
 function pgOfficial(){const pg=$('#pg');
   pg.innerHTML=`<div class="page-h"><h2>官方公告</h2><span class="hint">由支委通过网站数据统一发布 · App 自动/手动同步 · 版本 v${FEED?FEED.version:'—'}</span>
   <button class="btn ghost sm" style="margin-left:auto" onclick="fetchFeed().then(()=>pgOfficial())">↻ 检查更新</button></div>

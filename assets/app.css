@@ -478,3 +478,15 @@ html[data-theme="dark"] .rem{background:#1c1312}
   .vrow .nm{width:56px!important}
   .hero .nums b{font-size:15px!important}
 }
+
+/* ===== 移动端二期：高亮三卡单列 + 图表自适应 ===== */
+@media(max-width:560px){
+  .hero3{grid-template-columns:1fr!important}
+  .ring-wrap{justify-content:center}
+  .legend{flex-direction:row;flex-wrap:wrap;gap:4px 12px;justify-content:center}
+  .cd{gap:6px}
+  .cd .cell{min-width:0;padding:8px 2px}
+  .cd .cell b{font-size:20px}
+  .hero .nums{gap:8px}
+  canvas.chart{max-width:100%}
+}
