@@ -991,17 +991,23 @@ window.stGo=p=>{window._st.pg=p;pgKnowledge();const el=document.querySelector('.
 window.stCat=c=>{window._st.cat=c;window._st.pg=0;pgKnowledge()};
 window.stSearch=v=>{window._st.q=v;window._st.pg=0;
   const box=$('#st-list');if(box)box.innerHTML=stListHtml()};
+function stKey(t){const m=/(20\d{2})[.\-/年]?(\d{1,2})/.exec(t||'');if(!m)return 0;
+  return +m[1]*100+Math.min(12,+m[2])}
 function stListHtml(){const P=12;const q=window._st.q.trim().toLowerCase();
   let arr=STUDY.filter(k=>(!window._st.cat||k.c===window._st.cat)
     &&(!q||(k.t+k.s+k.b).toLowerCase().includes(q)));
+  arr=arr.slice().sort((a,b)=>stKey(b.s)-stKey(a.s));
   const pages=Math.max(1,Math.ceil(arr.length/P));
   const pg=Math.min(window._st.pg,pages-1);window._st.pg=pg;
   const part=arr.slice(pg*P,pg*P+P);
-  return `${part.map(k=>`<div class="card" style="margin-bottom:10px;cursor:pointer" onclick="const b=this.querySelector('.st-body');b.style.display=b.style.display==='none'?'block':'none'">
-    <div style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap"><span class="chip">${STUDY_CATS[k.c]?STUDY_CATS[k.c].slice(3):k.c}</span><b style="font-size:14.5px;flex:1;min-width:60%">${esc(k.t)}</b>
-    <span style="margin-left:auto;font-size:11px;color:var(--mut);white-space:nowrap">${esc(k.s)}</span></div>
-    <div class="st-body" style="display:none;margin-top:8px"><div class="paper" style="border:none;padding:4px 0">${esc(k.b)}</div>
-    <a href="${k.u}" target="_blank" rel="noopener" style="font-size:12px">前往官方来源 ↗</a></div></div>`).join('')}
+  return `<div class="tl">${part.map(k=>{const dk=stKey(k.s);
+    const ym=dk?String(Math.floor(dk/100))+'.'+String(dk%100).padStart(2,'0'):'——';
+    return `<div class="tl-item" onclick="const b=this.querySelector('.st-body');const on=b.style.display==='none';b.style.display=on?'block':'none';this.classList.toggle('open',on)">
+    <div class="tl-date"><b>${ym}</b><span>${STUDY_CATS[k.c]?STUDY_CATS[k.c].slice(3):k.c}</span></div>
+    <div class="tl-card"><div class="tl-t">${esc(k.t)}</div>
+    <div class="tl-s">${esc(k.s)}</div>
+    <div class="st-body" style="display:none"><div class="tl-b">${esc(k.b)}</div>
+    <a href="${k.u}" target="_blank" rel="noopener">前往官方来源 ↗</a></div></div></div>`}).join('')}</div>
   ${!part.length?'<div class="empty" style="padding:24px">无匹配资料</div>':''}
   ${pages>1?`<div style="display:flex;justify-content:center;align-items:center;gap:6px;margin:14px 0;flex-wrap:wrap">
     <button class="btn ghost sm" ${pg===0?'disabled style="opacity:.4"':''} onclick="stGo(${pg-1})">‹ 上页</button>
@@ -1034,8 +1040,8 @@ function pgOfficial(){const pg=$('#pg');
     <span class="chip ${n.pin?'red':''}">${n.pin?'📌 置顶':'📣'}</span><b>${esc(n.title)}</b>
     <span style="margin-left:auto;font-size:11.5px;color:var(--mut)">${esc(n.date||'')}</span></div>
     <div style="font-size:13.5px;line-height:1.7;margin-top:8px;white-space:pre-wrap">${esc(n.body)}</div></div>`).join('')}
-  ${(FEED.records||[]).length?`<div class="card" style="margin-bottom:12px"><h3><span class="dot"></span>官方留痕台账（只读）</h3>
-    ${FEED.records.map(r=>`<div class="vrow"><span class="nm" style="width:96px;font-weight:600;color:var(--red-d)">${esc(r.date||'')}</span>
+  ${(FEED.records||[]).filter(r=>!r.appOnly).length?`<div class="card" style="margin-bottom:12px"><h3><span class="dot"></span>官方留痕台账（只读）</h3>
+    ${FEED.records.filter(r=>!r.appOnly).map(r=>`<div class="vrow"><span class="nm" style="width:96px;font-weight:600;color:var(--red-d)">${esc(r.date||'')}</span>
     <span style="flex:1;font-size:13.5px"><b>${esc(r.title||'')}</b>${(r.type||r.category)?' · '+esc(r.type||r.category):''}${r.attendees?' · '+r.attendees+'人':''}${r.summary?'<div style="font-size:12px;color:var(--mut);margin-top:2px">'+esc(r.summary)+'</div>':''}</span></div>`).join('')}
     <div style="font-size:11px;color:var(--mut);margin-top:8px">以上为支委统一发布的官方留痕，与个人登记记录区分展示</div></div>`:''}
   ${(FEED.volunteerPushes||[]).length?`<div class="card" style="margin-bottom:12px"><h3><span class="dot"></span>志愿工时公示（只读）</h3>
@@ -1059,12 +1065,14 @@ window.pubForm=t=>{const sp=PUB_SPEC[t];
   modal(`<h3>发布 → feed.json 的 <code>${sp.arr}[]</code></h3>
   ${sp.fields.map(f=>f[2]===2?`<textarea id="pf-${f[0]}" rows="4" placeholder="${f[3]||f[1]}" style="width:100%;margin-top:10px;padding:10px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit"></textarea>`
     :`<input id="pf-${f[0]}" placeholder="${f[1]}${f[3]?'（'+f[3]+'）':''}" style="width:100%;margin-top:10px;padding:10px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit">`).join('')}
+  ${t==='record'?`<label style="display:flex;gap:8px;align-items:center;margin-top:10px;font-size:13px;color:var(--mut)"><input type="checkbox" id="pf-appOnly">仅 App 端展示（网站官方台账不显示此条）</label>`:''}
   <div class="mrow"><button class="btn" onclick="pubGen('${t}')">生成 JSON</button></div>`)};
 window.pubGen=t=>{const sp=PUB_SPEC[t];const o={};let ok=true;
   sp.fields.forEach(f=>{const v=($('#pf-'+f[0]).value||'').trim();
     if(!v&&f[2]===1){ok=false;$('#pf-'+f[0]).style.borderColor='var(--bad)'}
     if(v){o[f[0]]=f[0]==='attendees'||f[0]==='hours'?(isNaN(+v)?v:+v):f[0]==='pin'?!!+v:v}});
   if(!ok){toast('请填必填项');return}
+  if(t==='record'&&$('#pf-appOnly')&&$('#pf-appOnly').checked)o.appOnly=true;
   const js=JSON.stringify(o,null,2);window.__pubJs=js;
   modal(`<h3>已生成 → <code>${sp.arr}[]</code></h3>
   <div style="font-size:12px;color:var(--mut);margin-bottom:8px">打开 feed.json 编辑页 → 在 <code>"${sp.arr}": [</code> 内粘贴这段（注意结尾逗号）→ Commit。</div>
