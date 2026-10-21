@@ -1,0 +1,21 @@
+name: 更新学习特稿
+on:
+  schedule:
+    - cron: '20 2 * * 1'   # 每周一 10:20 北京时间（UTC+8）
+  workflow_dispatch: {}
+permissions:
+  contents: write
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.12'}
+      - run: python scripts/fetch_study.py
+      - name: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/feed.json
+          git diff --cached --quiet || git commit -m "chore: 同步独家特稿至 feed.json" && git push
