@@ -1,5 +1,5 @@
 {
- "version": 20,
+ "version": 21,
  "updated": "2026-10-20",
  "notices": [
   {
@@ -1723,11 +1723,11 @@
     },
     {
      "name": "现场照片·线上学习页面截图",
-     "url": "https://icyteacn.github.io/CYSL-26CS/assets/img/longmarch-1022.png"
+     "url": "https://icyteacn.github.io/CYSL-26CS/assets/img/longmarch-1022.jpg"
     }
    ],
    "photoUrls": [
-    "https://icyteacn.github.io/CYSL-26CS/assets/img/longmarch-1022.png"
+    "https://icyteacn.github.io/CYSL-26CS/assets/img/longmarch-1022.jpg"
    ],
    "photos": 1
   }
