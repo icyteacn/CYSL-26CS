@@ -1,8 +1,8 @@
 {
-  "versionCode": 24,
-  "versionName": "1.0.24",
+  "versionCode": 25,
+  "versionName": "1.0.25",
   "apk": "api/leaguetrace-latest.apk",
   "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-latest.apk",
-  "notes": "修复应用内更新检查：检查更新现在会真正对比安装包版本并自动下载推送；会中工具箱/智慧团建导出/排期助手/成员画像已上线。",
+  "notes": "会中工具箱全新UI；指数卡图表放大居中；新增OTA自检（隐藏设置内）。",
   "mandatory": true
 }
