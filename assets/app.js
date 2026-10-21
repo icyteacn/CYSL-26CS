@@ -189,9 +189,9 @@ function topbar(){return`<div class="topbar"><div class="brand"><span class="fla
   <div class="sub">${BRANCH}</div></div></div><div class="sp"></div>
   <span class="role-chip">${ROLE_NAME[role()]}</span>
   <a class="tbtn" href="#/calendar">📅</a>
-  <a class="tbtn gold" href="#/showcase" target="_self">✦ 出片</a>
+  <a class="tbtn gold" href="#/showcase" target="_self">✦ 名片</a>
   <button class="tbtn" onclick="logout()">⇥</button></div>`}
-function navbar(){const I=[['dashboard','⌂','首页'],['records','🗂','留痕'],['volunteer','♥','志愿'],['projects','🚀','立项'],['party','🏛','入党'],['knowledge','📚','知识'],['members','👥','成员'],['system','⚙','体系']];
+function navbar(){const I=[['dashboard','⌂','首页'],['records','🗂','留痕'],['volunteer','♥','志愿'],['projects','🚀','立项'],['party','🏛','入党'],['knowledge','📖','学习'],['members','👥','成员'],['system','⚙','体系']];
   return`<div class="nav" style="overflow-x:auto">${I.map(([k,i,n])=>`<a href="#/${k}" class="${cur===k?'on':''}" style="flex-shrink:0"><span class="i">${i}</span>${n}</a>`).join('')}</div>`}
 window.logout=()=>{sessionStorage.removeItem(AUTH_KEY);location.hash='#/dashboard';renderLock()};
 
@@ -540,7 +540,16 @@ function pgSystem(){const pg=$('#pg');const s=st();
         <button class="btn" style="width:100%" onclick="genReport()">生成年度报告</button>
         <button class="btn line" style="width:100%;margin-top:8px" onclick="window.print()">打印 / 另存 PDF</button></div>
     </div></div>
-  ${canEdit()?`<div class="card" style="margin-top:14px"><h3><span class="dot"></span>数据管理</h3>
+  ${canEdit()?`<div class="card" style="margin-top:14px"><h3><span class="dot"></span>官方数据发布 <span style="font-size:11px;color:var(--mut);font-weight:400">隐藏端点 · 发布后全端免更新同步</span></h3>
+    <div style="font-size:12.5px;color:var(--mut);margin-bottom:10px">生成 JSON → 粘贴进仓库 data/feed.json 对应数组 → 提交。所有 App 与网页端下次打开即自动拉到。</div>
+    <div class="grid g3">
+      <button class="btn ghost" onclick="pubForm('record')">🗂 发布官方留痕</button>
+      <button class="btn ghost" onclick="pubForm('vol')">♥ 发布志愿公示</button>
+      <button class="btn ghost" onclick="pubForm('notice')">📣 发布公告</button>
+      <button class="btn ghost" onclick="pubForm('schedule')">📅 发布日程</button>
+      <button class="btn line" onclick="openFeedEdit()">✏️ 直接编辑 feed.json</button>
+    </div></div>
+  <div class="card" style="margin-top:14px"><h3><span class="dot"></span>数据管理</h3>
     <div class="grid g3">
       <button class="btn ghost" onclick="exportJSON()">⬇ 导出 JSON 备份</button>
       <button class="btn ghost" onclick="document.getElementById('imp').click()">⬆ 导入 JSON 恢复</button>
@@ -625,7 +634,7 @@ window.doCheckin=id=>{const name=$('#ci-name').value.trim()||'匿名'+String(Dat
 
 /* ================= 出片展示屏 ================= */
 let scTimer=null,scIdx=0;
-function renderShowcase(){const s=st();document.title='CYSL · 支部风采';
+function renderShowcase(){const s=st();document.title='CYSL · 支部名片';
   const slides=[
     {n:'支部名片',h:`<div class="sc-panel"><h4>BRANCH PROFILE · 支部名片</h4>
       <div style="font-size:clamp(18px,2.6vw,30px);font-weight:800;line-height:1.4">${BRANCH}</div>
@@ -652,6 +661,21 @@ function renderShowcase(){const s=st();document.title='CYSL · 支部风采';
         <div class="sc-kpi"><b>${s.photoCnt}</b><span>照片留痕</span></div>
         <div class="sc-kpi"><b>${s.volHours}h</b><span>志愿时长</span></div>
         <div class="sc-kpi"><b>${DB.projects.length}</b><span>在研立项</span></div></div></div>`},
+    {n:'组织生活',h:`<div class="sc-panel"><h4>ORG-LIFE · 组织生活落实</h4>
+      ${(()=>{const g={'三会':0,'两制':0,'一课':0,'拓展':0};
+        DB.records.forEach(r=>{const c=r.cat||'';g[/大会|委员会|小组/.test(c)?'三会':/评议|注册/.test(c)?'两制':/团课/.test(c)?'一课':'拓展']++});
+        const triad=DB.records.filter(r=>r.signIn&&r.minutes&&(r.photos||0)>=3).length;
+        return `<div class="sc-kpis" style="grid-template-columns:repeat(2,1fr)">
+        <div class="sc-kpi"><b>${g['三会']}</b><span>“三会”召开</span></div>
+        <div class="sc-kpi"><b>${g['两制']}</b><span>“两制”落实</span></div>
+        <div class="sc-kpi"><b>${g['一课']}</b><span>“一课”开展</span></div>
+        <div class="sc-kpi"><b>${triad}</b><span>三件套完备</span></div></div>
+        <div class="sc-lb" style="margin-top:14px;text-align:left">签到+纪要+3图 为一条完备留痕，完备率 ${DB.records.length?Math.round(triad/DB.records.length*100):0}%</div>`})()}</div>
+      <div class="sc-panel" style="max-width:340px"><h4>STAR · 志愿之星</h4>
+      ${(()=>{const agg={};DB.volunteers.forEach(v=>{agg[v.name]=(agg[v.name]||0)+v.hours});
+        const top=Object.entries(agg).sort((a,b)=>b[1]-a[1]).slice(0,3);
+        return top.length?top.map(([n,h],i)=>`<div class="sc-row" style="font-size:17px">${'🥇🥈🥉'[i]} ${esc(mask(n))} <b style="margin-left:auto;color:var(--gold)">${h}h</b></div>`).join(''):'<div class="sc-lb">暂无志愿记录</div>'})()}
+      <div class="sc-lb" style="margin-top:auto">累计服务 ${s.volHours} 小时</div></div>`},
     {n:'风采动态',h:`<div class="sc-panel"><h4>RECENT · 留痕风采</h4><div class="sc-list">
       ${DB.records.slice().sort((a,b)=>b.date-a.date).slice(0,8).map(r=>`<div class="it"><span>${CAT_ICON[r.category]||''} ${esc(r.title)}</span><span style="opacity:.6">${fmtYMD(r.date)}</span></div>`).join('')||'<div style="opacity:.6">暂无记录</div>'}</div></div>
       <div class="sc-panel" style="max-width:340px"><h4>PROJECT · 重点立项</h4>
@@ -659,14 +683,14 @@ function renderShowcase(){const s=st();document.title='CYSL · 支部风采';
       <div class="pbar" style="margin-top:8px;background:rgba(255,255,255,.12)"><i style="width:${p.progress}%;background:linear-gradient(90deg,#f6d9a0,#e8b45a)"></i></div>
       <div style="font-size:11px;opacity:.6;margin-top:5px">${PSTATUS[p.status]} · ${p.progress}%</div></div>`).join('')||'<div style="opacity:.6">暂无立项</div>'}</div>`}];
   $('#app').innerHTML=`<div class="showcase">
-  <div class="sc-top"><span class="flag">⚑</span><div><h1>${BRANCH} · 数字化建设体系</h1>
+  <div class="sc-top"><span class="flag">⚑</span><div><h1>${BRANCH} · 支部名片</h1>
   <div class="en">CYSL DIGITAL LEAGUE-BRANCH SYSTEM</div></div>
   <div class="sc-clock"><b id="sc-t">--:--:--</b><span id="sc-d"></span></div></div>
   <div class="sc-stage">${slides.map((sl,i)=>`<div class="sc-slide ${i===0?'on':''}" data-i="${i}">${sl.h}</div>`).join('')}</div>
   <div class="sc-bottom">
     <div class="sc-marquee"><i>　⚑ ${BRANCH} ｜ "三会两制一课"制度数字化落实 ｜ 低负担·全自动·强留痕 ｜ 支部建设指数 ${index()} ｜ 志愿服务 ${s.volHours} 小时 ｜ 数据本地存储·隐私脱敏保护　</i></div>
     <div class="sc-dots">${slides.map((_,i)=>`<i class="${i===0?'on':''}"></i>`).join('')}</div>
-    <button class="sc-exit" onclick="exitShowcase()">退出 ESC</button></div></div>`;
+    <button class="sc-exit" onclick="exitShowcase()">✕ 退出名片</button></div></div>`;
   const tick=()=>{const d=new Date();const e=$('#sc-t');if(!e)return;
     e.textContent=d.toTimeString().slice(0,8);
     $('#sc-d').textContent=`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 星期${'日一二三四五六'[d.getDay()]}`};
@@ -776,9 +800,34 @@ const KNOW=[
  {t:'主题团日怎么开',icon:'🚩',body:`一月一主题，支部全员参加，建议流程：
 确定主题（结合重要纪念日/上级部署/专业特色）→ 方案策划 → 活动实施（学习+实践+交流）→ 三件套留痕（签到表+记录+照片）→ 3日内归档+智慧团建同步 → 总结复盘。
 常见主题：理论学习、红色寻访、志愿服务、专业实践（如网络安全宣传）、文体共建。`}];
-function pgKnowledge(){$('#pg').innerHTML=`<div class="page-h"><h2>团务知识库</h2><span class="hint">制度原文要点 · 随时可查可讲</span></div>
+const STUDY=[
+ {t:'《关于加强党建带团建工作的意见》',s:'中共中央办公厅 · 2026-03',u:'http://www.gov.cn',
+  b:'坚持党管青年工作原则，健全党建带团建制度机制，贯通党、团、队一体化育人链条，带动共青团增强政治性、先进性、群众性。'},
+ {t:'《关于推进中国青年志愿者行动高质量发展的指导意见》',s:'中青发〔2026〕4号 · 2026-04',u:'https://www.gqt.org.cn',
+  b:'健全志愿服务体系，弘扬奉献、友爱、互助、进步的志愿精神，把青年志愿者行动打造为“思政小课堂”同“社会大课堂”结合的品牌。'},
+ {t:'习近平总书记给中国青年五四奖章获奖者代表重要回信',s:'新华社 · 2026-05',u:'http://www.news.cn',
+  b:'勉励青年坚定理想信念、练就过硬本领、勇于创新创造，在推进中国式现代化中挺膺担当。'},
+ {t:'团的十九大精神与团十九届四中全会部署',s:'共青团中央',u:'https://www.gqt.org.cn',
+  b:'牢记“坚定不移跟党走，为党和人民奋斗”的初心使命，动员团员青年为强国建设、民族复兴伟业团结奋斗。'},
+ {t:'《中国共产主义青年团支部工作条例》',s:'团中央基层建设部',u:'https://www.gqt.org.cn',
+  b:'支部工作基本遵循：落实“三会两制一课”，团员大会每季度至少一次，支委会每月至少一次，团课每季度至少一次。'},
+ {t:'团员和青年主题教育 · 团支部专题学习工作指引',s:'团中央主题教育专班',u:'https://www.gqt.org.cn',
+  b:'以“学思想、强党性、重实践、建新功”为总要求，依托团支部开展专题学习与研讨，巩固拓展主题教育成果。'},
+ {t:'党的二十届三中全会《决定》青年相关部署',s:'新华社',u:'http://www.news.cn',
+  b:'深化教育科技人才体制机制一体改革，健全青年人才发现、选拔、培养机制，鼓励青年投身科技创新最前沿。'},
+ {t:'习近平给西部计划志愿者服务队回信精神',s:'新华社',u:'http://www.news.cn',
+  b:'到祖国和人民最需要的地方发光发热，在基层一线经受磨砺、增长才干，为中国式现代化贡献青春力量。'}];
+function pgKnowledge(){$('#pg').innerHTML=`<div class="page-h"><h2>学习</h2><span class="hint">团的最新学习内容与指示精神 · 制度原文随时可查</span></div>
+  <div class="sect">📖 学习资料 · 指示精神</div>
+  ${STUDY.map(k=>`<div class="card" style="margin-bottom:10px;cursor:pointer" onclick="const b=this.querySelector('.st-body');b.style.display=b.style.display==='none'?'block':'none'">
+    <div style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap"><b style="font-size:14.5px">${esc(k.t)}</b>
+    <span style="margin-left:auto;font-size:11px;color:var(--mut);white-space:nowrap">${esc(k.s)}</span></div>
+    <div class="st-body" style="display:none;margin-top:8px"><div class="paper" style="border:none;padding:4px 0">${esc(k.b)}</div>
+    <a href="${k.u}" target="_blank" rel="noopener" style="font-size:12px">前往官方来源 ↗</a></div></div>`).join('')}
+  <div class="sect" style="margin-top:20px">📚 团务知识库 · 制度要点</div>
   ${KNOW.map(k=>`<div class="card" style="margin-bottom:12px"><h3>${k.icon} ${k.t}</h3>
-  <div class="paper" style="border:none;padding:4px 0 0">${esc(k.body)}</div></div>`).join('')}`}
+  <div class="paper" style="border:none;padding:4px 0 0">${esc(k.body)}</div></div>`).join('')}
+  <div style="font-size:11px;color:var(--mut);margin-top:8px">资料来源：共青团中央官网 gqt.org.cn · 新华社 · 中国政府网</div>`}
 
 /* ================= 官方公告（feed.json 数据源） ================= */
 let FEED=null;
@@ -804,6 +853,29 @@ function pgOfficial(){const pg=$('#pg');
   :'<div class="empty"><span class="big">📡</span>暂未获取到官方数据<br><small>检查网络后点击"检查更新"</small></div>'}
   <div style="font-size:11px;color:var(--mut);margin-top:14px">数据源：站点 <code>data/feed.json</code>（隐藏端点，不在导航展示）。支委更新仓库中的该文件即可向所有 App/网页端推送新团课日程、志愿工时信息等。</div>`}
 fetchFeed();
+
+const FEED_EDIT='https://github.com/icyteacn/CYSL-26CS/edit/main/data/feed.json';
+window.openFeedEdit=()=>window.open(FEED_EDIT,'_blank');
+const PUB_SPEC={record:{arr:'records',fields:[['type','类型',1,'支部团员大会|支部委员会|团小组会|团课|主题团日|志愿活动|谈心谈话|立项活动|其他'],['title','标题',1,''],['date','日期(YYYY-MM-DD)',1,''],['location','地点',0,''],['attendees','人数(数字)',0,''],['summary','纪要(可多行)',2,'']]},
+ vol:{arr:'volunteerPushes',fields:[['member','成员(如 团员77)',1,''],['activity','活动',1,''],['hours','工时(数字)',1,''],['date','日期(YYYY-MM-DD)',0,'']]},
+ notice:{arr:'notices',fields:[['title','标题',1,''],['date','日期(YYYY-MM-DD)',1,''],['body','正文(可多行)',2,''],['pin','置顶(填1)',0,'']]},
+ schedule:{arr:'schedule',fields:[['title','日程',1,''],['date','日期(YYYY-MM-DD)',1,''],['loc','地点',0,'']]}};
+window.pubForm=t=>{const sp=PUB_SPEC[t];
+  modal(`<h3>发布 → feed.json 的 <code>${sp.arr}[]</code></h3>
+  ${sp.fields.map(f=>f[2]===2?`<textarea id="pf-${f[0]}" rows="4" placeholder="${f[3]||f[1]}" style="width:100%;margin-top:10px;padding:10px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit"></textarea>`
+    :`<input id="pf-${f[0]}" placeholder="${f[1]}${f[3]?'（'+f[3]+'）':''}" style="width:100%;margin-top:10px;padding:10px;border:1.5px solid var(--line);border-radius:10px;font-family:inherit">`).join('')}
+  <div class="mrow"><button class="btn" onclick="pubGen('${t}')">生成 JSON</button></div>`)};
+window.pubGen=t=>{const sp=PUB_SPEC[t];const o={};let ok=true;
+  sp.fields.forEach(f=>{const v=($('#pf-'+f[0]).value||'').trim();
+    if(!v&&f[2]===1){ok=false;$('#pf-'+f[0]).style.borderColor='var(--bad)'}
+    if(v){o[f[0]]=f[0]==='attendees'||f[0]==='hours'?(isNaN(+v)?v:+v):f[0]==='pin'?!!+v:v}});
+  if(!ok){toast('请填必填项');return}
+  const js=JSON.stringify(o,null,2);window.__pubJs=js;
+  modal(`<h3>已生成 → <code>${sp.arr}[]</code></h3>
+  <div style="font-size:12px;color:var(--mut);margin-bottom:8px">打开 feed.json 编辑页 → 在 <code>"${sp.arr}": [</code> 内粘贴这段（注意结尾逗号）→ Commit。</div>
+  <textarea readonly style="width:100%;height:160px;padding:10px;border:1.5px solid var(--line);border-radius:10px;font-family:monospace;font-size:12px">${js.replace(/</g,'&lt;')}</textarea>
+  <div class="mrow"><button class="btn ghost" onclick="navigator.clipboard.writeText(window.__pubJs).then(()=>toast('已复制'))">📋 复制</button>
+  <button class="btn" onclick="navigator.clipboard.writeText(window.__pubJs);openFeedEdit()">📋 复制并打开编辑页</button></div>`)};
 
 function modal(html){const r=$('#modal-root');r.className='on';
   r.innerHTML=`<div class="mback" onclick="closeModal()"></div><div class="mbox">${html}</div>`}
