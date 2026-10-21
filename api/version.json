@@ -1,8 +1,8 @@
 {
-  "versionCode": 26,
-  "versionName": "1.0.26",
+  "versionCode": 27,
+  "versionName": "1.0.27",
   "apk": "api/leaguetrace-latest.apk",
   "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-latest.apk",
-  "notes": "修复检查更新反馈：下载失败不再静默，会提示重试或浏览器下载；双下载源轮试（Pages优先、raw兜底）。",
+  "notes": "支持 feed 下发远程照片（photoUrls）——10-22长征团日已挂现场照片；更新检查反馈修复。",
   "mandatory": true
 }

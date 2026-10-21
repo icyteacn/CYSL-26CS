@@ -1,5 +1,5 @@
 {
- "version": 19,
+ "version": 20,
  "updated": "2026-10-20",
  "notices": [
   {
@@ -1720,8 +1720,16 @@
     {
      "name": "长征路线图·网站",
      "url": "https://ife.baidu.com/lab/geo-history/long-march-story.html?mode=h5"
+    },
+    {
+     "name": "现场照片·线上学习页面截图",
+     "url": "https://icyteacn.github.io/CYSL-26CS/assets/img/longmarch-1022.png"
     }
-   ]
+   ],
+   "photoUrls": [
+    "https://icyteacn.github.io/CYSL-26CS/assets/img/longmarch-1022.png"
+   ],
+   "photos": 1
   }
  ],
  "study": [
