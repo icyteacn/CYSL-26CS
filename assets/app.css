@@ -361,6 +361,58 @@ a.card:hover,button.card:hover{transform:translateY(-3px);box-shadow:0 14px 34px
   .nav a{min-width:48px;padding:6px 8px}
 }
 
+
+/* ---------- 极致前端层 ---------- */
+html{scroll-behavior:smooth}
+::selection{background:#e8b45a66}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:6px}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* 深色主题 */
+html[data-theme="dark"]{
+  --ink:#f2e9e4;--mut:#b8a49c;--bg:#150d0c;--card:#221615;--line:#3a2826;
+  --sh:0 8px 30px rgba(0,0,0,.5);--sh2:0 4px 14px rgba(0,0,0,.4);
+}
+html[data-theme="dark"] body{background:var(--bg)}
+html[data-theme="dark"] .paper{background:#1c1312;border-color:var(--line)}
+html[data-theme="dark"] .mbox{background:#241817;color:var(--ink)}
+html[data-theme="dark"] input,html[data-theme="dark"] textarea,html[data-theme="dark"] select{
+  background:#1c1312!important;color:var(--ink)!important;border-color:var(--line)!important}
+html[data-theme="dark"] .nav{background:rgba(24,14,13,.94)}
+html[data-theme="dark"] .nav a.on{background:#3d1d1d}
+html[data-theme="dark"] .feed-card{background:linear-gradient(150deg,#241817,#1c1211);border-color:var(--line)}
+html[data-theme="dark"] .linkgrid a{background:linear-gradient(135deg,#241817,#1c1211);border-color:var(--line)}
+html[data-theme="dark"] .hbar .tr{background:#3a2826}
+html[data-theme="dark"] .chip{background:#3a2826;color:#f6d9a0}
+html[data-theme="dark"] .chip.red{background:#4a1d1d}
+html[data-theme="dark"] .chip.green{background:#1d3a28}
+html[data-theme="dark"] .empty{color:var(--mut)}
+html[data-theme="dark"] .btn.ghost{border-color:var(--line);color:var(--ink)}
+html[data-theme="dark"] .rem{background:#1c1312}
+
+/* 卡片 stagger 入场 */
+.page .card{animation:cardin .5s cubic-bezier(.2,.8,.3,1) both}
+.page .card:nth-child(1){animation-delay:.02s}.page .card:nth-child(2){animation-delay:.06s}
+.page .card:nth-child(3){animation-delay:.10s}.page .card:nth-child(4){animation-delay:.14s}
+.page .card:nth-child(n+5){animation-delay:.18s}
+@keyframes cardin{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+
+/* 顶栏滚动态 */
+.topbar{transition:padding .25s,box-shadow .25s}
+.topbar.slim{padding-top:5px;padding-bottom:5px;box-shadow:0 2px 24px rgba(0,0,0,.3)}
+
+/* 回顶 */
+#toTop{position:fixed;right:16px;bottom:88px;z-index:19;width:42px;height:42px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),#c98f2e);color:var(--red-dd);font-size:17px;font-weight:700;
+  display:grid;place-items:center;box-shadow:0 8px 22px rgba(94,18,22,.35);
+  opacity:0;pointer-events:none;transform:translateY(10px);transition:.3s}
+#toTop.on{opacity:1;pointer-events:auto;transform:none}
+#toTop:hover{transform:translateY(-3px)}
+
+/* 数字滚动完成后微弹跳 */
+@keyframes numPop{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
+.num-done{animation:numPop .35s ease}
+
 /* ---------- print ---------- */
 @media print{
   body{background:#fff}.topbar,.nav,.fab,.noprint{display:none!important}
