@@ -10,9 +10,9 @@ const DB_KEY='cysl_db_v1', AUTH_KEY='cysl_auth', SET_KEY='cysl_set';
 const BRANCH='计算机与网络空间安全学院2026级硕士研究生1班团支部';
 const CATS=['支部团员大会','支部委员会','团小组会','团员教育评议','年度团籍注册','团课','主题团日','志愿活动','推优入党','谈心谈话','立项活动','其他'];
 const CAT_ICON={'支部团员大会':'🏛️','支部委员会':'📋','团小组会':'👥','团员教育评议':'⭐','年度团籍注册':'🪪','团课':'📖','主题团日':'🚩','志愿活动':'💗','推优入党':'🌟','谈心谈话':'💬','立项活动':'🚀','其他':'📌'};
-const SPEC=[ /* 制度 → 年度要求次数（0=按需） */
- ['支部团员大会','团员大会',4],['支部委员会','支委会',12],['团小组会','团小组会',6],
- ['团员教育评议','教育评议',1],['年度团籍注册','团籍注册',1],['团课','团课',4],
+const SPEC=[ /* 制度 → 年度要求次数（0=按需）；第二字段须与记录 category/feed types 规范名一致 */
+ ['支部团员大会','支部团员大会',4],['支部委员会','支部委员会',12],['团小组会','团小组会',6],
+ ['团员教育评议','团员教育评议',1],['年度团籍注册','年度团籍注册',1],['团课','团课',4],
  ['主题团日','主题团日',4],['谈心谈话','谈心谈话',4]];
 const PSTATUS=['申报中','进行中','已结项','获评优秀'];
 const DEFAULT_CODE='cysl26'; // 初始管理口令（README 注明，可在"体系"页修改）
@@ -101,9 +101,21 @@ async function codeOK(input){const s=SET();const h=await sha(input);return s.cod
 function mask(n){if(!SET().privacy)return n;return n.replace(/^(\S)/,'$1**')}
 
 /* ================= 统计 ================= */
+function feedVols(){if(!FEED||!FEED.volunteers)return[];
+  return FEED.volunteers.map(v=>({feed:true,name:v.member||'',member:v.member||'',
+    title:v.activity||'',activity:v.activity||'',
+    hours:+v.hours||0,
+    date:v.date?new Date(String(v.date).replace(/\./g,'-')+'T00:00:00').getTime():0}))}
+function mergedVols(){const seen={},out=[];
+  DB.volunteers.concat(feedVols()).forEach(v=>{
+    if(!v.name&&!v.memberId)return;
+    if(!v.memberId){const m=DB.members.find(x=>x.name===v.name);v.memberId=m?m.id:0}
+    const k=(v.name||('#'+v.memberId))+'|'+day0(v.date||0)+'|'+v.hours;
+    if(!seen[k]){seen[k]=1;out.push(v)}});
+  return out}
 function st(){
   const now=Date.now();
-  const rec=DB.records,vol=DB.volunteers;
+  const rec=DB.records.concat(feedRows()),vol=mergedVols();
   const comp=m=>m.political!=='群众'&&m.political!=='境外线上团员',yout=m=>m.political==='群众';
   const done=r=>r.signin&&r.minutes&&r.archived;
   const cnt=(cat,yr)=>rec.filter(r=>r.category===cat&&new Date(r.date).getFullYear()===yr).length;
@@ -125,11 +137,14 @@ function st(){
     doneCnt:rec.filter(done).length,next,reminders:reminders.slice(0,8),yr,cnt};
 }
 function specRows(){const y=new Date().getFullYear();
-  return SPEC.map(([name,cat,quota])=>{const n=DB.records.filter(r=>r.category===cat&&new Date(r.date).getFullYear()===y).length;
+  const all=DB.records.concat(feedRows());
+  return SPEC.map(([name,cat,quota])=>{const n=all.filter(r=>
+      (r.types?r.types.includes(cat):r.category===cat)&&new Date(r.date).getFullYear()===y).length;
     return{name,cat,quota,n,pct:quota?Math.min(100,Math.round(n/quota*100)):100}})}
 function index(){const rows=specRows();const six=rows.slice(0,6);
   const pct=six.reduce((s,r)=>s+r.pct,0)/six.length;
-  const complete=DB.records.length?DB.records.filter(r=>r.signin&&r.minutes&&r.archived).length/DB.records.length*100:0;
+  const all=DB.records.concat(feedRows());
+  const complete=all.length?all.filter(r=>r.signin&&r.minutes&&r.archived).length/all.length*100:0;
   return Math.round(pct*.7+complete*.3)}
 
 /* ================= 图表 ================= */
@@ -279,13 +294,13 @@ function pgDash(){const s=st(),pg=$('#pg');
       <div class="bars">${(()=>{const ms=[];const now=new Date();
         for(let i=11;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);
           ms.push({k:d.getFullYear()+'-'+(d.getMonth()+1),l:(d.getMonth()+1)+'月',n:0})}
-        DB.records.forEach(r=>{const d=new Date(r.date);const k=d.getFullYear()+'-'+(d.getMonth()+1);
+        DB.records.concat(feedRows()).forEach(r=>{const d=new Date(r.date);const k=d.getFullYear()+'-'+(d.getMonth()+1);
           const m=ms.find(x=>x.k===k);if(m)m.n++});
         const mx=Math.max(1,...ms.map(m=>m.n));
         return ms.map((m,i)=>`<div class="b ${i===11?'hi':''}" title="${m.l}：${m.n}条"><i style="height:${Math.round(m.n/mx*100)}%"></i><span>${i===11?'本月':m.l}</span></div>`).join('')})()}</div>
       <div style="font-size:11px;color:var(--mut);margin-top:4px">柱高=当月留痕条数 · 悬停看明细</div></div>
     <div class="card"><h3><span class="dot"></span>志愿工时 TOP5</h3>
-      ${(()=>{const agg={};DB.volunteers.forEach(v=>{agg[v.name]=(agg[v.name]||0)+v.hours});
+      ${(()=>{const agg={};mergedVols().forEach(v=>{agg[v.name]=(agg[v.name]||0)+v.hours});
         const top=Object.entries(agg).sort((a,b)=>b[1]-a[1]).slice(0,5);
         const mx=Math.max(1,...top.map(x=>x[1]));
         return top.length?top.map(([n,h])=>`<div class="hbar"><span class="nm">${esc(mask(n))}</span>
@@ -293,7 +308,7 @@ function pgDash(){const s=st(),pg=$('#pg');
           <span class="hv">${h}h</span></div>`).join(''):'<div class="empty" style="padding:20px">暂无志愿数据</div>'})()}</div>
     <div class="card"><h3><span class="dot"></span>类别分布</h3>
       ${(()=>{const g={'三会':0,'两制':0,'一课':0,'拓展':0};
-        DB.records.forEach(r=>{const c=r.category||'';g[/大会|委员会|小组/.test(c)?'三会':/评议|注册/.test(c)?'两制':/团课/.test(c)?'一课':'拓展']++});
+        DB.records.concat(feedRows()).forEach(r=>{(r.types||[r.category||'']).forEach(c=>{g[/大会|委员会|小组/.test(c)?'三会':/评议|注册/.test(c)?'两制':/团课/.test(c)?'一课':'拓展']++})});
         const mx=Math.max(1,...Object.values(g));
         return Object.entries(g).map(([k,n])=>`<div class="hbar"><span class="nm">“${k}”</span>
           <span class="tr"><i style="width:${Math.round(n/mx*100)}%"></i></span>
@@ -301,8 +316,8 @@ function pgDash(){const s=st(),pg=$('#pg');
       <div style="font-size:11px;color:var(--mut);margin-top:6px">对照《团支部工作条例》频次要求自查</div></div>
   </div>
   <div class="card" style="margin-top:14px"><h3><span class="dot"></span>支部动态 <a href="#/records" style="margin-left:auto;font-size:12px;font-weight:400">全部 ›</a></h3>
-    <div class="feed-strip">${DB.records.slice().sort((a,b)=>b.date-a.date).slice(0,8).map(r=>`
-      <a class="feed-card" href="#/record/${r.id}"><div class="fd">${fmtYMD(r.date).slice(5)} · ${esc(r.category||'')}</div>
+    <div class="feed-strip">${DB.records.concat(feedRows()).sort((a,b)=>b.date-a.date).slice(0,8).map(r=>`
+      <a class="feed-card" href="#/${r.feed?'frecord':'record'}/${r.feed?r.fid:r.id}"><div class="fd">${fmtYMD(r.date).slice(5)} · ${esc(r.category||'')}</div>
       <div class="ft">${esc(mask(r.title))}</div>
       <div class="fm">${r.location?'📍'+esc(r.location)+' · ':''}${r.attendees||0}人到会</div></a>`).join('')
       ||'<div class="empty" style="padding:16px">暂无动态</div>'}</div></div>
@@ -485,20 +500,20 @@ window.calShift=d=>{calYm[1]+=d;if(calYm[1]<0){calYm[1]=11;calYm[0]--}if(calYm[1
 window.calPick=t=>{calSel=calSel===t?null:t;drawCal()};
 function drawCal(){const[y,m]=calYm;$('#calt').textContent=`${y}年${m+1}月`;
   const first=new Date(y,m,1),dow=(first.getDay()+6)%7,dim=new Date(y,m+1,0).getDate();
-  const days=new Set(DB.records.map(r=>day0(r.date)));
+  const days=new Set(DB.records.concat(feedRows()).map(r=>day0(r.date)));
   let h=['一','二','三','四','五','六','日'].map(d=>`<div class="cal-dow">${d}</div>`).join('');
   for(let i=0;i<dow;i++)h+='<div class="cal-cell dim"></div>';
   for(let d=1;d<=dim;d++){const t=new Date(y,m,d).getTime();
     h+=`<div class="cal-cell ${t===today()?'today':''} ${t===calSel?'sel':''}" onclick="calPick(${t})">${d}${days.has(t)?'<span class="dotp"></span>':''}</div>`}
   $('#calg').innerHTML=h;
-  const list=DB.records.filter(r=>day0(r.date)===(calSel??today()));calSel===undefined;
+  const list=DB.records.concat(feedRows()).filter(r=>day0(r.date)===(calSel??today()));calSel===undefined;
   $('#cald').textContent=calSel?fmtYMD(calSel)+' 的活动':(list.length?'今日活动':'当日活动');
   $('#call').innerHTML=(calSel!=null||list.length?list:DB.records.filter(r=>day0(r.date)===today()))
     .map(r=>rowHTML(r)).join('')||'<div class="empty" style="padding:16px">当日无留痕活动</div>'}
 
 /* ================= 志愿服务 ================= */
 function pgVol(){const pg=$('#pg');const s=st();
-  const byM={};DB.volunteers.forEach(v=>{byM[v.memberId]=(byM[v.memberId]||0)+v.hours});
+  const byM={};mergedVols().forEach(v=>{byM[v.memberId]=(byM[v.memberId]||0)+v.hours});
   const rows=DB.members.map(m=>({m,h:byM[m.id]||0})).sort((a,b)=>b.h-a.h);
   pg.innerHTML=`<div class="page-h"><h2>志愿服务</h2><span class="hint">时长排行与服务明细 · 数据按实登记</span>
   ${canEdit()?'<button class="btn sm" style="margin-left:auto" onclick="editVol(0)">＋ 记时长</button>':''}</div>
@@ -514,7 +529,7 @@ function pgVol(){const pg=$('#pg');const s=st();
     <span class="bar"><i style="width:${Math.min(100,h/Math.max(1,rows[0].h)*100)}%"></i></span>
     <span class="hv">${h} h</span></a>`).join('')}</div>
   <div class="card" style="margin-top:14px"><h3><span class="dot"></span>服务记录</h3>
-    ${DB.volunteers.slice().sort((a,b)=>b.date-a.date).map(v=>{const m=DB.members.find(x=>x.id===v.memberId);
+    ${mergedVols().slice().sort((a,b)=>b.date-a.date).map(v=>{const m=DB.members.find(x=>x.id===v.memberId);
     return`<div class="row"><span class="cat" style="background:#fbeaea">💗</span>
     <span class="tt"><b>${esc(v.title)}</b><small>${esc(mask(m?m.name:'—'))} · ${fmtYMD(v.date)}</small></span>
     <span class="end"><b style="color:var(--red-d)">${v.hours}h</b>${canEdit()?` <button class="btn ghost sm" onclick="delVol(${v.id})">删</button>`:''}</span></div>`}).join('')
@@ -758,21 +773,22 @@ function renderShowcase(){const s=st();document.title='CYSL · 支部名片';
         <div class="sc-kpi"><b>${DB.projects.length}</b><span>在研立项</span></div></div></div>`},
     {n:'组织生活',h:`<div class="sc-panel"><h4>ORG-LIFE · 组织生活落实</h4>
       ${(()=>{const g={'三会':0,'两制':0,'一课':0,'拓展':0};
-        DB.records.forEach(r=>{const c=r.category||'';g[/大会|委员会|小组/.test(c)?'三会':/评议|注册/.test(c)?'两制':/团课/.test(c)?'一课':'拓展']++});
-        const triad=DB.records.filter(r=>r.signIn&&r.minutes&&(r.photos||0)>=3).length;
+        const allR=DB.records.concat(feedRows());
+        allR.forEach(r=>{(r.types||[r.category||'']).forEach(c=>{g[/大会|委员会|小组/.test(c)?'三会':/评议|注册/.test(c)?'两制':/团课/.test(c)?'一课':'拓展']++})});
+        const triad=allR.filter(r=>r.signin&&r.minutes&&(r.photos||0)>=3).length;
         return `<div class="sc-kpis" style="grid-template-columns:repeat(2,1fr)">
         <div class="sc-kpi"><b>${g['三会']}</b><span>“三会”召开</span></div>
         <div class="sc-kpi"><b>${g['两制']}</b><span>“两制”落实</span></div>
         <div class="sc-kpi"><b>${g['一课']}</b><span>“一课”开展</span></div>
         <div class="sc-kpi"><b>${triad}</b><span>三件套完备</span></div></div>
-        <div class="sc-lb" style="margin-top:14px;text-align:left">签到+纪要+3图 为一条完备留痕，完备率 ${DB.records.length?Math.round(triad/DB.records.length*100):0}%</div>`})()}</div>
+        <div class="sc-lb" style="margin-top:14px;text-align:left">签到+纪要+3图 为一条完备留痕，完备率 ${allR.length?Math.round(triad/allR.length*100):0}%</div>`})()}</div>
       <div class="sc-panel" style="max-width:340px"><h4>STAR · 志愿之星</h4>
-      ${(()=>{const agg={};DB.volunteers.forEach(v=>{agg[v.name]=(agg[v.name]||0)+v.hours});
+      ${(()=>{const agg={};mergedVols().forEach(v=>{agg[v.name]=(agg[v.name]||0)+v.hours});
         const top=Object.entries(agg).sort((a,b)=>b[1]-a[1]).slice(0,3);
         return top.length?top.map(([n,h],i)=>`<div class="sc-row" style="font-size:17px">${'🥇🥈🥉'[i]} ${esc(mask(n))} <b style="margin-left:auto;color:var(--gold)">${h}h</b></div>`).join(''):'<div class="sc-lb">暂无志愿记录</div>'})()}
       <div class="sc-lb" style="margin-top:auto">累计服务 ${s.volHours} 小时</div></div>`},
     {n:'风采动态',h:`<div class="sc-panel"><h4>RECENT · 留痕风采</h4><div class="sc-list">
-      ${DB.records.slice().sort((a,b)=>b.date-a.date).slice(0,8).map(r=>`<div class="it"><span>${CAT_ICON[r.category]||''} ${esc(r.title)}</span><span style="opacity:.6">${fmtYMD(r.date)}</span></div>`).join('')||'<div style="opacity:.6">暂无记录</div>'}</div></div>
+      ${DB.records.concat(feedRows()).sort((a,b)=>b.date-a.date).slice(0,8).map(r=>`<div class="it"><span>${CAT_ICON[r.category]||''} ${esc(r.title)}</span><span style="opacity:.6">${fmtYMD(r.date)}</span></div>`).join('')||'<div style="opacity:.6">暂无记录</div>'}</div></div>
       <div class="sc-panel" style="max-width:340px"><h4>PROJECT · 重点立项</h4>
       ${DB.projects.slice(0,2).map(p=>`<div style="margin-bottom:16px"><div style="font-size:14px;font-weight:700;line-height:1.4">${esc(p.name)}</div>
       <div class="pbar" style="margin-top:8px;background:rgba(255,255,255,.12)"><i style="width:${p.progress}%;background:linear-gradient(90deg,#f6d9a0,#e8b45a)"></i></div>
@@ -796,15 +812,15 @@ function renderShowcase(){const s=st();document.title='CYSL · 支部名片';
     $$('.sc-slide').forEach((el,i)=>el.classList.toggle('on',i===scIdx));
     $$('.sc-dots i').forEach((el,i)=>el.classList.toggle('on',i===scIdx));},7000);
   document.addEventListener('keydown',scKeys);window.__scClock=clock;
-  // 触屏滑动切换 + 点按暂停/继续
-  const st=document.querySelector('.sc-stage');let sx=0,sy=0;
-  st.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
-  st.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
+  // 触屏滑动切换 + 点按暂停/继续（注意：勿命名为 st——会遮蔽统计函数 st() 导致 TDZ 崩溃）
+  const stageEl=document.querySelector('.sc-stage');let sx=0,sy=0;
+  stageEl.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
+  stageEl.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
     if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)){const n=$$('.sc-slide').length;
       scIdx=(scIdx+(dx<0?1:-1)+n)%n;
       $$('.sc-slide').forEach((el,i)=>el.classList.toggle('on',i===scIdx));
       $$('.sc-dots i').forEach((el,i)=>el.classList.toggle('on',i===scIdx))}},{passive:true});
-  st.addEventListener('click',()=>{if(scTimer){clearInterval(scTimer);scTimer=null}
+  stageEl.addEventListener('click',()=>{if(scTimer){clearInterval(scTimer);scTimer=null}
     else scTimer=setInterval(()=>{scIdx=(scIdx+1)%$$('.sc-slide').length;
       $$('.sc-slide').forEach((el,i)=>el.classList.toggle('on',i===scIdx));
       $$('.sc-dots i').forEach((el,i)=>el.classList.toggle('on',i===scIdx))},7000)})}
@@ -1024,8 +1040,10 @@ window.stSearch=v=>{window._st.q=v;window._st.pg=0;
   const box=$('#st-list');if(box)box.innerHTML=stListHtml()};
 function stKey(t){const m=/(20\d{2})[.\-/年]?(\d{1,2})/.exec(t||'');if(!m)return 0;
   return +m[1]*100+Math.min(12,+m[2])}
+/* 学习资料：优先 feed.study（支委推送的最新库），离线/未拉取时回退内置库 */
+function studyAll(){return (FEED&&FEED.study&&FEED.study.length)?FEED.study:STUDY}
 function stListHtml(){const P=12;const q=window._st.q.trim().toLowerCase();
-  let arr=STUDY.filter(k=>(!window._st.cat||k.c===window._st.cat)
+  let arr=studyAll().filter(k=>(!window._st.cat||k.c===window._st.cat)
     &&(!q||(k.t+k.s+k.b).toLowerCase().includes(q)));
   arr=arr.slice().sort((a,b)=>stKey(b.s)-stKey(a.s));
   const pages=Math.max(1,Math.ceil(arr.length/P));
@@ -1046,7 +1064,7 @@ function stListHtml(){const P=12;const q=window._st.q.trim().toLowerCase();
       `<button class="btn ${i===pg?'':'ghost'} sm" onclick="stGo(${i})">${i+1}</button>`).join('')}
     <button class="btn ghost sm" ${pg>=pages-1?'disabled style="opacity:.4"':''} onclick="stGo(${pg+1})">下页 ›</button>
     <span style="font-size:11.5px;color:var(--mut);width:100%;text-align:center">共 ${arr.length} 条 · 第 ${pg+1}/${pages} 页</span></div>`:''}`}
-function pgKnowledge(){$('#pg').innerHTML=`<div class="page-h"><h2>学习</h2><span class="hint">${STUDY.length} 条官方学习资料 · 指示精神 · 制度原文</span></div>
+function pgKnowledge(){$('#pg').innerHTML=`<div class="page-h"><h2>学习</h2><span class="hint">${studyAll().length} 条官方学习资料 · 指示精神 · 制度原文${FEED&&FEED.study?' · 已同步 feed v'+FEED.version:''}</span></div>
   <input class="st-q" placeholder="搜索标题 / 内容 / 来源…" value="${esc(window._st.q)}"
     oninput="stSearch(this.value)" style="width:100%;padding:11px 14px;border:1.5px solid var(--line);border-radius:12px;margin-bottom:10px;font-size:14px;box-sizing:border-box">
   <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none">
