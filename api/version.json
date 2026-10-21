@@ -1,9 +1,9 @@
 {
-  "versionCode": 30,
-  "versionName": "1.0.30",
-  "apk": "api/leaguetrace-v1.0.30.apk",
-  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.30.apk",
-  "notes": "v1.0.30：修复存量官方记录不同步补发的照片字段（长征团日照片可见）。",
+  "versionCode": 31,
+  "versionName": "1.0.31",
+  "apk": "api/leaguetrace-v1.0.31.apk",
+  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.31.apk",
+  "notes": "v1.0.31：OTA 分段并行下载（4 段跨源同时拉）；远程图片落磁盘缓存，照片墙秒开；长征团日图片压缩 26 倍。",
   "mandatory": false,
-  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.30.apk"
+  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.31.apk"
 }
