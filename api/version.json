@@ -1,7 +1,8 @@
 {
-  "versionCode": 23,
-  "versionName": "1.0.23",
+  "versionCode": 24,
+  "versionName": "1.0.24",
+  "apk": "api/leaguetrace-latest.apk",
   "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-latest.apk",
-  "notes": "会中工具箱上线：主持脚卡自动记时间戳生成纪要、发言计时、表决计数；新增智慧团建录入导出、排期助手、成员画像页。",
-  "mandatory": false
+  "notes": "修复应用内更新检查：检查更新现在会真正对比安装包版本并自动下载推送；会中工具箱/智慧团建导出/排期助手/成员画像已上线。",
+  "mandatory": true
 }
