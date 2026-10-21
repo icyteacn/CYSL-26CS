@@ -910,14 +910,35 @@ const STUDY=[
  {c:'实务',t:'“智慧团建”系统操作要点',s:'团中央',u:'https://www.gqt.org.cn',b:'团员电子档案、组织关系转接、活动记录线上管理。'},
 ];
 const STUDY_CATS={讲话:'📣 重要讲话',回信:'✉️ 重要回信贺信',文件:'📜 法规条例与政策文件',报告:'🏛 大会报告与全会精神',寄语:'🌱 五四寄语与节日指示',实务:'🛠 团务实务指引'};
-function pgKnowledge(){$('#pg').innerHTML=`<div class="page-h"><h2>学习</h2><span class="hint">${STUDY.length} 条官方学习资料 · 指示精神 · 制度原文</span></div>
-  ${Object.keys(STUDY_CATS).map(c=>{const arr=STUDY.filter(k=>k.c===c);return arr.length?`
-  <div class="sect">${STUDY_CATS[c]} <span style="color:var(--mut);font-weight:400;letter-spacing:0">${arr.length}条</span></div>
-  ${arr.map(k=>`<div class="card" style="margin-bottom:10px;cursor:pointer" onclick="const b=this.querySelector('.st-body');b.style.display=b.style.display==='none'?'block':'none'">
-    <div style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap"><b style="font-size:14.5px">${esc(k.t)}</b>
+window._st={q:'',cat:'',pg:0};
+window.stGo=p=>{window._st.pg=p;pgKnowledge();const el=document.querySelector('.sect');el&&el.scrollIntoView()};
+window.stCat=c=>{window._st.cat=c;window._st.pg=0;pgKnowledge()};
+window.stSearch=v=>{window._st.q=v;window._st.pg=0;
+  const box=$('#st-list');if(box)box.innerHTML=stListHtml()};
+function stListHtml(){const P=12;const q=window._st.q.trim().toLowerCase();
+  let arr=STUDY.filter(k=>(!window._st.cat||k.c===window._st.cat)
+    &&(!q||(k.t+k.s+k.b).toLowerCase().includes(q)));
+  const pages=Math.max(1,Math.ceil(arr.length/P));
+  const pg=Math.min(window._st.pg,pages-1);window._st.pg=pg;
+  const part=arr.slice(pg*P,pg*P+P);
+  return `${part.map(k=>`<div class="card" style="margin-bottom:10px;cursor:pointer" onclick="const b=this.querySelector('.st-body');b.style.display=b.style.display==='none'?'block':'none'">
+    <div style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap"><span class="chip">${STUDY_CATS[k.c]?STUDY_CATS[k.c].slice(3):k.c}</span><b style="font-size:14.5px;flex:1;min-width:60%">${esc(k.t)}</b>
     <span style="margin-left:auto;font-size:11px;color:var(--mut);white-space:nowrap">${esc(k.s)}</span></div>
     <div class="st-body" style="display:none;margin-top:8px"><div class="paper" style="border:none;padding:4px 0">${esc(k.b)}</div>
-    <a href="${k.u}" target="_blank" rel="noopener" style="font-size:12px">前往官方来源 ↗</a></div></div>`).join('')}`:''}).join('')}
+    <a href="${k.u}" target="_blank" rel="noopener" style="font-size:12px">前往官方来源 ↗</a></div></div>`).join('')}
+  ${!part.length?'<div class="empty" style="padding:24px">无匹配资料</div>':''}
+  ${pages>1?`<div style="display:flex;justify-content:center;align-items:center;gap:6px;margin:14px 0;flex-wrap:wrap">
+    <button class="btn ghost sm" ${pg===0?'disabled style="opacity:.4"':''} onclick="stGo(${pg-1})">‹ 上页</button>
+    ${Array.from({length:pages},(_,i)=>i).filter(i=>i===0||i===pages-1||Math.abs(i-pg)<=2).map(i=>
+      `<button class="btn ${i===pg?'':'ghost'} sm" onclick="stGo(${i})">${i+1}</button>`).join('')}
+    <button class="btn ghost sm" ${pg>=pages-1?'disabled style="opacity:.4"':''} onclick="stGo(${pg+1})">下页 ›</button>
+    <span style="font-size:11.5px;color:var(--mut);width:100%;text-align:center">共 ${arr.length} 条 · 第 ${pg+1}/${pages} 页</span></div>`:''}`}
+function pgKnowledge(){$('#pg').innerHTML=`<div class="page-h"><h2>学习</h2><span class="hint">${STUDY.length} 条官方学习资料 · 指示精神 · 制度原文</span></div>
+  <input class="st-q" placeholder="搜索标题 / 内容 / 来源…" value="${esc(window._st.q)}"
+    oninput="stSearch(this.value)" style="width:100%;padding:11px 14px;border:1.5px solid var(--line);border-radius:12px;margin-bottom:10px;font-size:14px;box-sizing:border-box">
+  <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none">
+    ${[''].concat(Object.keys(STUDY_CATS)).map(c=>`<button class="btn ${window._st.cat===c?'':'ghost'} sm" style="flex-shrink:0" onclick="stCat('${c}')">${c?STUDY_CATS[c]:'全部'}</button>`).join('')}</div>
+  <div id="st-list">${stListHtml()}</div>
   <div class="sect" style="margin-top:20px">📚 团务知识库 · 制度要点</div>
   ${KNOW.map(k=>`<div class="card" style="margin-bottom:12px"><h3>${k.icon} ${k.t}</h3>
   <div class="paper" style="border:none;padding:4px 0 0">${esc(k.body)}</div></div>`).join('')}
