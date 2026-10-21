@@ -177,6 +177,25 @@ let cur='dashboard';
 const routes={dashboard:pgDash,records:pgRecords,record:pgRecord,calendar:pgCalendar,
   volunteer:pgVol,projects:pgProjects,project:pgProject,members:pgMembers,system:pgSystem,checkin:pgCheckin,
   party:pgParty,knowledge:pgKnowledge,official:pgOfficial};
+/* 深色主题 */
+document.documentElement.dataset.theme=localStorage.getItem('cysl_theme')||'light';
+window.toggleTheme=()=>{const d=document.documentElement;
+  d.dataset.theme=d.dataset.theme==='dark'?'light':'dark';
+  localStorage.setItem('cysl_theme',d.dataset.theme);nav()};
+/* 数字滚动 */
+window.countUp=el=>{const txt=el.textContent;const m=txt.match(/[\d.]+/);if(!m)return;
+  const target=parseFloat(m[0]);const suf=txt.slice(m.index+m[0].length);const pre=txt.slice(0,m.index);
+  const t0=performance.now(),dur=700;
+  const step=t=>{const p=Math.min(1,(t-t0)/dur);const e=1-Math.pow(1-p,3);
+    el.textContent=pre+(target%1?(target*e).toFixed(1):Math.round(target*e))+suf;
+    if(p<1)requestAnimationFrame(step);else el.classList.add('num-done')};
+  requestAnimationFrame(step)};
+window.initFx=()=>{document.querySelectorAll('.hero .n b,.card.stat .v').forEach(countUp);
+  const tb=document.querySelector('.topbar');let tt=document.getElementById('toTop');
+  if(!tt){tt=document.createElement('button');tt.id='toTop';tt.innerHTML='↑';
+    tt.onclick=()=>scrollTo({top:0,behavior:'smooth'});document.body.appendChild(tt)}
+  addEventListener('scroll',()=>{tb&&tb.classList.toggle('slim',scrollY>40);
+    tt.classList.toggle('on',scrollY>420)},{passive:true})};
 function greet(){const h=new Date().getHours();
   return h<6?'夜深了':h<9?'早上好':h<12?'上午好':h<14?'中午好':h<18?'下午好':'晚上好'}
 function nav(){const h=location.hash.slice(2)||'dashboard';const[name,arg]=h.split('/');
@@ -186,10 +205,11 @@ function nav(){const h=location.hash.slice(2)||'dashboard';const[name,arg]=h.spl
   render(()=>routes[cur](arg||decodeURIComponent(location.hash.split('?')[1]||'')))}
 function render(fn){const app=$('#app');
   app.innerHTML=topbar()+`<main><div class="page" id="pg"></div></main>`+navbar();
-  fn&&fn();window.scrollTo(0,0)}
+  fn&&fn();window.scrollTo(0,0);initFx()}
 function topbar(){return`<div class="topbar"><div class="brand"><span class="flag">⚑</span><div><div>CYSL 支部工作台</div>
   <div class="sub">${BRANCH}</div></div></div><div class="sp"></div>
   <span class="role-chip">${ROLE_NAME[role()]}</span>
+  <button class="tbtn" onclick="toggleTheme()" title="切换深色/浅色">${document.documentElement.dataset.theme==='dark'?'☀️':'🌙'}</button>
   <a class="tbtn" href="#/calendar">📅</a>
   <a class="tbtn gold" href="#/showcase" target="_self">✦ 名片</a>
   <button class="tbtn" onclick="logout()">⇥</button></div>`}
@@ -744,7 +764,19 @@ function renderShowcase(){const s=st();document.title='CYSL · 支部名片';
   scIdx=0;scTimer=setInterval(()=>{scIdx=(scIdx+1)%slides.length;
     $$('.sc-slide').forEach((el,i)=>el.classList.toggle('on',i===scIdx));
     $$('.sc-dots i').forEach((el,i)=>el.classList.toggle('on',i===scIdx));},7000);
-  document.addEventListener('keydown',scKeys);window.__scClock=clock}
+  document.addEventListener('keydown',scKeys);window.__scClock=clock;
+  // 触屏滑动切换 + 点按暂停/继续
+  const st=document.querySelector('.sc-stage');let sx=0,sy=0;
+  st.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
+  st.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
+    if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)){const n=$$('.sc-slide').length;
+      scIdx=(scIdx+(dx<0?1:-1)+n)%n;
+      $$('.sc-slide').forEach((el,i)=>el.classList.toggle('on',i===scIdx));
+      $$('.sc-dots i').forEach((el,i)=>el.classList.toggle('on',i===scIdx))}},{passive:true});
+  st.addEventListener('click',()=>{if(scTimer){clearInterval(scTimer);scTimer=null}
+    else scTimer=setInterval(()=>{scIdx=(scIdx+1)%$$('.sc-slide').length;
+      $$('.sc-slide').forEach((el,i)=>el.classList.toggle('on',i===scIdx));
+      $$('.sc-dots i').forEach((el,i)=>el.classList.toggle('on',i===scIdx))},7000)})}
 function scKeys(e){if(e.key==='Escape')exitShowcase();
   if(e.key==='ArrowRight'||e.key==='ArrowLeft'){const n=$$('.sc-slide').length;
     scIdx=(scIdx+(e.key==='ArrowRight'?1:-1)+n)%n;
