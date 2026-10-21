@@ -293,7 +293,7 @@ function pgDash(){const s=st(),pg=$('#pg');
           <span class="hv">${h}h</span></div>`).join(''):'<div class="empty" style="padding:20px">暂无志愿数据</div>'})()}</div>
     <div class="card"><h3><span class="dot"></span>类别分布</h3>
       ${(()=>{const g={'三会':0,'两制':0,'一课':0,'拓展':0};
-        DB.records.forEach(r=>{const c=r.cat||'';g[/大会|委员会|小组/.test(c)?'三会':/评议|注册/.test(c)?'两制':/团课/.test(c)?'一课':'拓展']++});
+        DB.records.forEach(r=>{const c=r.category||'';g[/大会|委员会|小组/.test(c)?'三会':/评议|注册/.test(c)?'两制':/团课/.test(c)?'一课':'拓展']++});
         const mx=Math.max(1,...Object.values(g));
         return Object.entries(g).map(([k,n])=>`<div class="hbar"><span class="nm">“${k}”</span>
           <span class="tr"><i style="width:${Math.round(n/mx*100)}%"></i></span>
@@ -302,7 +302,7 @@ function pgDash(){const s=st(),pg=$('#pg');
   </div>
   <div class="card" style="margin-top:14px"><h3><span class="dot"></span>支部动态 <a href="#/records" style="margin-left:auto;font-size:12px;font-weight:400">全部 ›</a></h3>
     <div class="feed-strip">${DB.records.slice().sort((a,b)=>b.date-a.date).slice(0,8).map(r=>`
-      <a class="feed-card" href="#/record/${r.id}"><div class="fd">${fmtYMD(r.date).slice(5)} · ${esc(r.cat||'')}</div>
+      <a class="feed-card" href="#/record/${r.id}"><div class="fd">${fmtYMD(r.date).slice(5)} · ${esc(r.category||'')}</div>
       <div class="ft">${esc(mask(r.title))}</div>
       <div class="fm">${r.location?'📍'+esc(r.location)+' · ':''}${r.attendees||0}人到会</div></a>`).join('')
       ||'<div class="empty" style="padding:16px">暂无动态</div>'}</div></div>
@@ -727,7 +727,7 @@ function renderShowcase(){const s=st();document.title='CYSL · 支部名片';
         <div class="sc-kpi"><b>${DB.projects.length}</b><span>在研立项</span></div></div></div>`},
     {n:'组织生活',h:`<div class="sc-panel"><h4>ORG-LIFE · 组织生活落实</h4>
       ${(()=>{const g={'三会':0,'两制':0,'一课':0,'拓展':0};
-        DB.records.forEach(r=>{const c=r.cat||'';g[/大会|委员会|小组/.test(c)?'三会':/评议|注册/.test(c)?'两制':/团课/.test(c)?'一课':'拓展']++});
+        DB.records.forEach(r=>{const c=r.category||'';g[/大会|委员会|小组/.test(c)?'三会':/评议|注册/.test(c)?'两制':/团课/.test(c)?'一课':'拓展']++});
         const triad=DB.records.filter(r=>r.signIn&&r.minutes&&(r.photos||0)>=3).length;
         return `<div class="sc-kpis" style="grid-template-columns:repeat(2,1fr)">
         <div class="sc-kpi"><b>${g['三会']}</b><span>“三会”召开</span></div>
@@ -1036,8 +1036,12 @@ function pgOfficial(){const pg=$('#pg');
     <div style="font-size:13.5px;line-height:1.7;margin-top:8px;white-space:pre-wrap">${esc(n.body)}</div></div>`).join('')}
   ${(FEED.records||[]).length?`<div class="card" style="margin-bottom:12px"><h3><span class="dot"></span>官方留痕台账（只读）</h3>
     ${FEED.records.map(r=>`<div class="vrow"><span class="nm" style="width:96px;font-weight:600;color:var(--red-d)">${esc(r.date||'')}</span>
-    <span style="flex:1;font-size:13.5px"><b>${esc(r.title||'')}</b>${r.category?' · '+esc(r.category):''}${r.attendees?' · '+r.attendees+'人':''}${r.summary?'<div style="font-size:12px;color:var(--mut);margin-top:2px">'+esc(r.summary)+'</div>':''}</span></div>`).join('')}
+    <span style="flex:1;font-size:13.5px"><b>${esc(r.title||'')}</b>${(r.type||r.category)?' · '+esc(r.type||r.category):''}${r.attendees?' · '+r.attendees+'人':''}${r.summary?'<div style="font-size:12px;color:var(--mut);margin-top:2px">'+esc(r.summary)+'</div>':''}</span></div>`).join('')}
     <div style="font-size:11px;color:var(--mut);margin-top:8px">以上为支委统一发布的官方留痕，与个人登记记录区分展示</div></div>`:''}
+  ${(FEED.volunteerPushes||[]).length?`<div class="card" style="margin-bottom:12px"><h3><span class="dot"></span>志愿工时公示（只读）</h3>
+    ${FEED.volunteerPushes.map(v=>`<div class="vrow"><span class="nm" style="width:96px;font-weight:600;color:var(--red-d)">${esc(v.date||'')}</span>
+    <span style="flex:1;font-size:13.5px"><b>${esc(v.member||'')}</b> · ${esc(v.activity||'')}<b style="color:var(--red-d)"> ${v.hours||0}h</b></span></div>`).join('')}
+    <div style="font-size:11px;color:var(--mut);margin-top:8px">支委统一公示的工时认定，与个人申报区分</div></div>`:''}
   ${(FEED.schedule||[]).length?`<div class="card"><h3><span class="dot"></span>官方日程</h3>
     ${FEED.schedule.map(s=>`<div class="vrow"><span class="nm" style="width:96px;font-weight:600;color:var(--red-d)">${esc(s.date)}</span>
     <span style="flex:1;font-size:13.5px">${esc(s.title)}${s.loc?' · '+esc(s.loc):''}</span></div>`).join('')}</div>`:''}`
