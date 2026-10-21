@@ -1,7 +1,7 @@
 {
-  "versionCode": 22,
-  "versionName": "1.0.22",
+  "versionCode": 23,
+  "versionName": "1.0.23",
   "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-latest.apk",
-  "notes": "新增三大创新功能：发言速记一键转正式纪要；缺席关怀闭环（连续缺席≥2次自动提醒+一键生成谈心谈话草稿）；雷达弱项一键成稿。请尽快更新。",
+  "notes": "会中工具箱上线：主持脚卡自动记时间戳生成纪要、发言计时、表决计数；新增智慧团建录入导出、排期助手、成员画像页。",
   "mandatory": false
 }
