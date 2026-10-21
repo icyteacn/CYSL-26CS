@@ -1,7 +1,7 @@
 {
- "versionCode": 20,
- "versionName": "1.0.20",
+ "versionCode": 21,
+ "versionName": "1.0.21",
  "apk": "api/leaguetrace-latest.apk",
- "notes": "出席人员选择器·缺席防冲突·按钮恢复·10-22长征线上团日·网站台账同步",
+ "notes": "志愿工时按日历日去重修复40h重复·长征团日全员到齐",
  "updated": "2026-10-23"
 }
