@@ -177,6 +177,8 @@ let cur='dashboard';
 const routes={dashboard:pgDash,records:pgRecords,record:pgRecord,calendar:pgCalendar,
   volunteer:pgVol,projects:pgProjects,project:pgProject,members:pgMembers,system:pgSystem,checkin:pgCheckin,
   party:pgParty,knowledge:pgKnowledge,official:pgOfficial};
+function greet(){const h=new Date().getHours();
+  return h<6?'夜深了':h<9?'早上好':h<12?'上午好':h<14?'中午好':h<18?'下午好':'晚上好'}
 function nav(){const h=location.hash.slice(2)||'dashboard';const[name,arg]=h.split('/');
   if(!auth()){renderLock();return}
   cur=routes[name]?name:'dashboard';
@@ -219,7 +221,7 @@ window.unlock=async()=>{const v=$('#code').value.trim();
 function pgDash(){const s=st(),pg=$('#pg');
   const diff=s.next?Math.max(0,Math.ceil((day0(s.next.date)-today())/864e5)):null;
   pg.innerHTML=`
-  <div class="hero"><h1>以数字化体系，筑先进团支部</h1>
+  <div class="hero"><div class="greet">${greet()} · ${ROLE_NAME[role()]}</div><h1>以数字化体系，筑先进团支部</h1>
     <div class="branch">${BRANCH} · 团支部数字化建设体系</div>
     <div class="nums">
       <div class="n"><b>${s.memberCnt}</b><span>在册团员</span></div>
@@ -252,6 +254,48 @@ function pgDash(){const s=st(),pg=$('#pg');
        ['📷',s.photoCnt,'照片留痕','#/records'],['✓',s.doneCnt+'/'+s.recCnt,'三件套完备','#/system']]
       .map(([i,v,l])=>`<a class="card stat" href="${l}"><span class="ico">${i}</span><span class="v">${v}</span><span class="l">${l}</span></a>`).join('')}
   </div>
+  <div class="grid g3" style="margin-top:14px">
+    <div class="card"><h3><span class="dot"></span>月度留痕趋势 <span class="chip">近12月</span></h3>
+      <div class="bars">${(()=>{const ms=[];const now=new Date();
+        for(let i=11;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+          ms.push({k:d.getFullYear()+'-'+(d.getMonth()+1),l:(d.getMonth()+1)+'月',n:0})}
+        DB.records.forEach(r=>{const d=new Date(r.date);const k=d.getFullYear()+'-'+(d.getMonth()+1);
+          const m=ms.find(x=>x.k===k);if(m)m.n++});
+        const mx=Math.max(1,...ms.map(m=>m.n));
+        return ms.map((m,i)=>`<div class="b ${i===11?'hi':''}" title="${m.l}：${m.n}条"><i style="height:${Math.round(m.n/mx*100)}%"></i><span>${i===11?'本月':m.l}</span></div>`).join('')})()}</div>
+      <div style="font-size:11px;color:var(--mut);margin-top:4px">柱高=当月留痕条数 · 悬停看明细</div></div>
+    <div class="card"><h3><span class="dot"></span>志愿工时 TOP5</h3>
+      ${(()=>{const agg={};DB.volunteers.forEach(v=>{agg[v.name]=(agg[v.name]||0)+v.hours});
+        const top=Object.entries(agg).sort((a,b)=>b[1]-a[1]).slice(0,5);
+        const mx=Math.max(1,...top.map(x=>x[1]));
+        return top.length?top.map(([n,h])=>`<div class="hbar"><span class="nm">${esc(mask(n))}</span>
+          <span class="tr"><i style="width:${Math.round(h/mx*100)}%"></i></span>
+          <span class="hv">${h}h</span></div>`).join(''):'<div class="empty" style="padding:20px">暂无志愿数据</div>'})()}</div>
+    <div class="card"><h3><span class="dot"></span>类别分布</h3>
+      ${(()=>{const g={'三会':0,'两制':0,'一课':0,'拓展':0};
+        DB.records.forEach(r=>{const c=r.cat||'';g[/大会|委员会|小组/.test(c)?'三会':/评议|注册/.test(c)?'两制':/团课/.test(c)?'一课':'拓展']++});
+        const mx=Math.max(1,...Object.values(g));
+        return Object.entries(g).map(([k,n])=>`<div class="hbar"><span class="nm">“${k}”</span>
+          <span class="tr"><i style="width:${Math.round(n/mx*100)}%"></i></span>
+          <span class="hv">${n}条</span></div>`).join('')})()}
+      <div style="font-size:11px;color:var(--mut);margin-top:6px">对照《团支部工作条例》频次要求自查</div></div>
+  </div>
+  <div class="card" style="margin-top:14px"><h3><span class="dot"></span>支部动态 <a href="#/records" style="margin-left:auto;font-size:12px;font-weight:400">全部 ›</a></h3>
+    <div class="feed-strip">${DB.records.slice().sort((a,b)=>b.date-a.date).slice(0,8).map(r=>`
+      <a class="feed-card" href="#/record/${r.id}"><div class="fd">${fmtYMD(r.date).slice(5)} · ${esc(r.cat||'')}</div>
+      <div class="ft">${esc(mask(r.title))}</div>
+      <div class="fm">${r.location?'📍'+esc(r.location)+' · ':''}${r.attendees||0}人到会</div></a>`).join('')
+      ||'<div class="empty" style="padding:16px">暂无动态</div>'}</div></div>
+  <div class="card" style="margin-top:14px"><h3><span class="dot"></span>团务直达 <span class="chip">官方平台</span></h3>
+    <div class="linkgrid">
+      ${[['⚑','智慧团建','组织关系·团籍管理','https://zhtj.youth.cn/zhtj/'],
+         ['♥','志愿汇','志愿服务记录认证','https://www.zyh365.com/'],
+         ['📚','青年大学习','网上主题团课','https://www.gqt.org.cn/'],
+         ['🏛','共青团中央','官方门户','https://www.gqt.org.cn/'],
+         ['📰','中国青年报','青年舆论阵地','https://www.cyol.com/'],
+         ['🎓','学习强国','理论学习中心','https://www.xuexi.cn/']]
+        .map(([i,t,s2,u])=>`<a href="${u}" target="_blank" rel="noopener"><span class="li-ic">${i}</span><span><b>${t}</b><small>${s2}</small></span></a>`).join('')}
+    </div></div>
   <div class="grid g2" style="margin-top:14px">
     <div class="card"><h3><span class="dot"></span>规范度提醒 <span class="chip ${s.reminders.length?'red':'green'}">${s.reminders.length||'全部达标'}</span></h3>
       ${s.reminders.length?s.reminders.map(r=>`<div class="rem ${r.lvl}" onclick="location.hash='${r.go}'">
