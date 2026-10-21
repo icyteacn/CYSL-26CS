@@ -1,8 +1,8 @@
 {
-  "versionCode": 27,
-  "versionName": "1.0.27",
+  "versionCode": 28,
+  "versionName": "1.0.28",
   "apk": "api/leaguetrace-latest.apk",
   "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-latest.apk",
-  "notes": "支持 feed 下发远程照片（photoUrls）——10-22长征团日已挂现场照片；更新检查反馈修复。",
-  "mandatory": true
+  "notes": "团立项勘误（书记=党员80、预算1700元）；网站禁横向滑动。",
+  "mandatory": false
 }
