@@ -115,8 +115,8 @@ function mergedVols(){const seen={},out=[];
   return out}
 function st(){
   const now=Date.now();
-  const rec=DB.records.concat(feedRows()),vol=mergedVols();
-  const comp=m=>m.political!=='群众'&&m.political!=='境外线上团员',yout=m=>m.political==='群众';
+  const rec=realRecords(),vol=mergedVols();
+  const comp=m=>m.political==='共青团员',yout=m=>m.political==='群众';
   const done=r=>r.signin&&r.minutes&&r.archived;
   const cnt=(cat,yr)=>rec.filter(r=>r.category===cat&&new Date(r.date).getFullYear()===yr).length;
   const yr=new Date().getFullYear();
@@ -138,13 +138,13 @@ function st(){
     doneCnt:rec.filter(done).length,next,reminders:reminders.slice(0,8),yr,cnt};
 }
 function specRows(){const y=new Date().getFullYear();
-  const all=DB.records.concat(feedRows());
+  const all=realRecords();
   return SPEC.map(([name,cat,quota])=>{const n=all.filter(r=>
       (r.types?r.types.includes(cat):r.category===cat)&&new Date(r.date).getFullYear()===y).length;
     return{name,cat,quota,n,pct:quota?Math.min(100,Math.round(n/quota*100)):100}})}
 function index(){const rows=specRows();const six=rows.slice(0,6);
   const pct=six.reduce((s,r)=>s+r.pct,0)/six.length;
-  const all=DB.records.concat(feedRows());
+  const all=realRecords();
   const complete=all.length?all.filter(r=>r.signin&&r.minutes&&r.archived).length/all.length*100:0;
   return Math.round(pct*.7+complete*.3)}
 
@@ -202,7 +202,7 @@ window.toggleTheme=()=>{const d=document.documentElement;
 window.countUp=el=>{const txt=el.textContent;const m=txt.match(/[\d.]+/);if(!m)return;
   const target=parseFloat(m[0]);const suf=txt.slice(m.index+m[0].length);const pre=txt.slice(0,m.index);
   const t0=performance.now(),dur=700;
-  const step=t=>{const p=Math.min(1,(t-t0)/dur);const e=1-Math.pow(1-p,3);
+  const step=t=>{if(!el.isConnected)return;const p=Math.max(0,Math.min(1,(t-t0)/dur));const e=1-Math.pow(1-p,3);
     el.textContent=pre+(target%1?(target*e).toFixed(1):Math.round(target*e))+suf;
     if(p<1)requestAnimationFrame(step);else el.classList.add('num-done')};
   requestAnimationFrame(step)};
@@ -210,11 +210,13 @@ window.initFx=()=>{document.querySelectorAll('.hero .n b,.card.stat .v').forEach
   const tb=document.querySelector('.topbar');let tt=document.getElementById('toTop');
   if(!tt){tt=document.createElement('button');tt.id='toTop';tt.innerHTML='↑';
     tt.onclick=()=>scrollTo({top:0,behavior:'smooth'});document.body.appendChild(tt)}
-  addEventListener('scroll',()=>{tb&&tb.classList.toggle('slim',scrollY>40);
-    tt.classList.toggle('on',scrollY>420)},{passive:true})};
+  window.onscroll=()=>{document.querySelector('.topbar')?.classList.toggle('slim',scrollY>40);
+    tt.classList.toggle('on',scrollY>420)}};
 function greet(){const h=new Date().getHours();
   return h<6?'夜深了':h<9?'早上好':h<12?'上午好':h<14?'中午好':h<18?'下午好':'晚上好'}
 function nav(){const h=location.hash.slice(2)||'dashboard';const[name,arg]=h.split('/');
+  clearInterval(window.__cd);clearInterval(scTimer);clearInterval(window.__scClock);
+  document.removeEventListener('keydown',scKeys);
   if(!auth()){renderLock();return}
   cur=routes[name]?name:'dashboard';
   if(name==='showcase'){renderShowcase();return}
@@ -222,15 +224,14 @@ function nav(){const h=location.hash.slice(2)||'dashboard';const[name,arg]=h.spl
 function render(fn){const app=$('#app');
   app.innerHTML=topbar()+`<main><div class="page" id="pg"></div></main>`+navbar();
   fn&&fn();window.scrollTo(0,0);initFx()}
-function topbar(){return`<div class="topbar"><div class="brand"><span class="flag">⚑</span><div><div>CYSL 支部工作台</div>
-  <div class="sub">${BRANCH}</div></div></div><div class="sp"></div>
+function topbar(){return`<header class="topbar"><a class="brand" href="#/dashboard"><span class="flag">⚑</span><div><div>智团慧建 <small>CYSL</small></div>
+  <div class="sub">${BRANCH}</div></div></a><div class="sp"></div>
   <span class="role-chip">${ROLE_NAME[role()]}</span>
   <button class="tbtn" onclick="toggleTheme()" title="切换深色/浅色">${document.documentElement.dataset.theme==='dark'?'☀️':'🌙'}</button>
-  <a class="tbtn" href="#/calendar">📅</a>
-  <a class="tbtn gold" href="#/showcase" target="_self">✦ 名片</a>
-  <button class="tbtn" onclick="logout()">⇥</button></div>`}
-function navbar(){const I=[['dashboard','⌂','首页'],['records','🗂','留痕'],['volunteer','♥','志愿'],['projects','🚀','立项'],['party','🏛','入党'],['knowledge','📖','学习'],['members','👥','成员'],['system','⚙','体系']];
-  return`<div class="nav" style="overflow-x:auto">${I.map(([k,i,n])=>`<a href="#/${k}" class="${cur===k?'on':''}" style="flex-shrink:0"><span class="i">${i}</span>${n}</a>`).join('')}</div>`}
+  <a class="tbtn gold" href="#/impact">成果汇报 ↗</a>
+  <button class="tbtn logout" onclick="logout()" aria-label="退出身份">⇥</button></header>`}
+function navbar(){const I=[['dashboard','⌂','工作台'],['workbench','✓','工作推进'],['records','▤','留痕'],['learning','◈','学习地图'],['more','⊞','更多']];
+  return`<nav class="nav" aria-label="主导航">${I.map(([k,i,n])=>`<a href="#/${k}" ${cur===k?'aria-current="page"':''} class="${cur===k?'on':''}"><span class="i" aria-hidden="true">${i}</span>${n}</a>`).join('')}</nav>`}
 window.logout=()=>{sessionStorage.removeItem(AUTH_KEY);location.hash='#/dashboard';renderLock()};
 
 /* ================= 锁屏 ================= */
@@ -399,7 +400,11 @@ function feedRows(){if(!FEED||!FEED.records)return[];
     location:r.location||'',attendees:r.attendees||Math.max(0,(r.expected||[]).length-(r.absent||[]).length),host:r.host||'',
     summary:r.summary||'',expected:r.expected||[],floating:r.floating||[],
     absent:r.absent||[],observers:r.observers||[],attachments:r.attachments||[],
+    photoUrls:r.photoUrls||[],photos:Math.max(Number(r.photos)||0,(r.photoUrls||[]).length),projectName:r.project||'',
     signin:true,minutes:!!r.summary,archived:true,synced:true}))}
+function isSample(r){return r.category==='示例模板'||String(r.title).startsWith('【示例】')}
+function realRecords(){const found=new Map();DB.records.filter(r=>!isSample(r)).concat(feedRows()).forEach(r=>{
+  found.set(r.title+'|'+fmt(r.date),r)});return [...found.values()]}
 function pgFeedRec(idx){const r=feedRows()[idx],pg=$('#pg');
   if(!r){pg.innerHTML='<div class="empty">记录不存在</div>';return}
   const aL=l=>l&&l.length?l.map(x=>`<span class="bd y" style="margin:2px 6px 2px 0;display:inline-block">${esc(x)}</span>`).join(''):'<span style="color:var(--mut)">无</span>';
@@ -412,6 +417,7 @@ function pgFeedRec(idx){const r=feedRows()[idx],pg=$('#pg');
     <dt>应到</dt><dd>${exp} 人</dd><dt>实到</dt><dd>${real} 人</dd>
     <dt>缺席</dt><dd>${r.absent.length} 人</dd><dt>流动团员</dt><dd>无</dd>
     ${r.attachments.length?`<dt>活动资料</dt><dd>${r.attachments.map(a=>{const s=typeof a==='string'?a.split('|'):null;const n=s?s[0]:(a.name||'附件');const u=s?(s[1]||''):(a.url||'');return u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(n)} ↗</a>`:esc(n)}).join('<br>')}</dd>`:''}</dl>
+    ${r.photoUrls.length?`<div class="sect">照片资料 · 点击查看完整图片</div><div class="evidence-photos">${r.photoUrls.map(u=>/^https?:\/\//.test(u)?`<a href="${esc(u)}" target="_blank" rel="noopener"><img loading="lazy" src="${esc(u)}" alt="${esc(r.title)}现场资料"></a>`:'').join('')}</div>`:''}
     <div class="sect">会议内容</div><div class="paper">${esc(r.summary||'（未填写）')}</div></div>
   <div class="card" style="margin-top:14px"><h3><span class="dot"></span>参会人员</h3>
     <div class="sect">应参加团员（${r.expected.length}人）</div><div>${aL(r.expected)}</div>
@@ -421,7 +427,7 @@ function pgFeedRec(idx){const r=feedRows()[idx],pg=$('#pg');
 function pgRecords(){const pg=$('#pg');
   pg.innerHTML=`<div class="page-h"><h2>留痕台账</h2><span class="hint">"三件套"留痕标准 · 点击记录看详情</span></div>
   <div class="chips"><button class="fchip ${!recFilter.cat?'on':''}" onclick="setCat('')">全部</button>
-  ${CATS.map(c=>`<button class="fchip ${recFilter.cat===c?'on':''}" onclick="setCat('${c}')">${c}</button>`).join('')}</div>
+  ${[...CATS,'示例模板'].map(c=>`<button class="fchip ${recFilter.cat===c?'on':''}" onclick="setCat('${c}')">${c}</button>`).join('')}</div>
   <div class="search"><input id="rq" placeholder="搜索标题 / 地点 / 摘要…" value="${esc(recFilter.q)}" oninput="recFilter.q=this.value;listRecords()">
   <a class="btn ghost" href="#/calendar">📅 月历</a></div>
   <div class="card" id="rl"></div>
@@ -431,7 +437,7 @@ window.setCat=c=>{recFilter.cat=c;pgRecords()};
 function listRecords(){const q=recFilter.q.toLowerCase();
   const hit=r=>(!recFilter.cat||(r.types?r.types.includes(recFilter.cat):r.category===recFilter.cat))&&
     (!q||(r.title+r.location+(r.summary||'')).toLowerCase().includes(q));
-  const list=DB.records.filter(hit).concat(feedRows().filter(hit)).sort((a,b)=>b.date-a.date);
+  const list=(recFilter.cat==='示例模板'?DB.records.filter(isSample).filter(r=>!q||r.title.toLowerCase().includes(q)):realRecords().filter(hit)).sort((a,b)=>b.date-a.date);
   $('#rl').innerHTML=list.map(r=>rowHTML(r)).join('')||'<div class="empty"><span class="big">🗂</span>没有匹配的留痕记录</div>'}
 function pgRecord(id){const r=DB.records.find(x=>x.id==id),pg=$('#pg');
   if(!r){pg.innerHTML='<div class="empty">记录不存在</div>';return}
