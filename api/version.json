@@ -1,10 +1,10 @@
 {
-  "versionCode": 35,
-  "versionName": "1.0.35",
-  "apk": "api/leaguetrace-v1.0.35.apk",
-  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.35.apk",
+  "versionCode": 36,
+  "versionName": "1.0.36",
+  "apk": "api/leaguetrace-v1.0.36.apk",
+  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.36.apk",
   "apkLatest": "api/leaguetrace-latest.apk",
-  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.35.apk",
-  "notes": "v1.0.35：系统页新增「导出迎检台账」——本学年全部留痕一键生成 Markdown 台账（类别/时间/地点/主持/人数/三件套标记/纪要全文），分享即得打印版迎检材料；保留点名/通知/纪要/大名片全部能力。",
+  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.36.apk",
+  "notes": "v1.0.36：会中工具箱新增「发言速记」卡——尾号+内容逐行记、退后台不丢、散会一键并入纪要生成器；展示大屏第5页「荣誉墙」金字轮播；迎检台账导出保留。",
   "mandatory": false
 }
