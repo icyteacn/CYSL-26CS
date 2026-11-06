@@ -1,10 +1,10 @@
 {
-  "versionCode": 36,
-  "versionName": "1.0.36",
-  "apk": "api/leaguetrace-v1.0.36.apk",
-  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.36.apk",
+  "versionCode": 37,
+  "versionName": "1.0.37",
+  "apk": "api/leaguetrace-v1.0.37.apk",
+  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.37.apk",
   "apkLatest": "api/leaguetrace-latest.apk",
-  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.36.apk",
-  "notes": "v1.0.36：会中工具箱新增「发言速记」卡——尾号+内容逐行记、退后台不丢、散会一键并入纪要生成器；展示大屏第5页「荣誉墙」金字轮播；迎检台账导出保留。",
+  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.37.apk",
+  "notes": "v1.0.37：点名结果一键落成留痕签到（出席名单带入编辑页）；发言速记支持语音输入（SpeechRecognizer，设备不支持自动降级）；纪要生成器支持双类型叠加（大会暨团日）。",
   "mandatory": false
 }
