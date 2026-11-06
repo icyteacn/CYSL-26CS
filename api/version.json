@@ -1,9 +1,10 @@
 {
-  "versionCode": 32,
-  "versionName": "1.0.32",
-  "apk": "api/leaguetrace-v1.0.32.apk",
-  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.32.apk",
-  "notes": "v1.0.32：OTA 探测提速（首个可用源即开下）；会中工具箱状态持久化（议程/计时/表决退后台不丢）；工作台大改版",
-  "mandatory": false,
-  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.32.apk"
+  "versionCode": 33,
+  "versionName": "1.0.33",
+  "apk": "api/leaguetrace-v1.0.33.apk",
+  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.33.apk",
+  "apkLatest": "api/leaguetrace-latest.apk",
+  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.33.apk",
+  "notes": "v1.0.33：新增会后「会议纪要生成器」——12类会议规范议程模板自主选择，一键生成台账标准纪要+智慧团建录入对照文本（类别/专题/时间/参加团员/内容五栏），可复制或直接存为留痕；会中工具箱新增入口。",
+  "mandatory": false
 }
