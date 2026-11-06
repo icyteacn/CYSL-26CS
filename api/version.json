@@ -1,10 +1,10 @@
 {
-  "versionCode": 40,
-  "versionName": "1.0.40",
-  "apk": "api/leaguetrace-v1.0.40.apk",
-  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.40.apk",
+  "versionCode": 41,
+  "versionName": "1.0.41",
+  "apk": "api/leaguetrace-v1.0.41.apk",
+  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.41.apk",
   "apkLatest": "api/leaguetrace-latest.apk",
-  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.40.apk",
-  "notes": "v1.0.40：学习强国风改版第二弹——底部导航新增「学习」频道页：分类筛选chips+文章流（标题/摘要/来源），点击进内置浏览器打开原文；数据复用官方feed学习资料库（100+条），同步官方数据即更新。",
+  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.41.apk",
+  "notes": "v1.0.41：学习强国「我的」风——系统页顶部新增支部名片卡：支部名+段位徽标（建设指数★分级实时算）+成员/留痕/志愿工时/荣誉四格统计，全部数据实时绑定。",
   "mandatory": false
 }
