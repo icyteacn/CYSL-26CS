@@ -1,10 +1,10 @@
 {
-  "versionCode": 43,
-  "versionName": "1.0.43",
-  "apk": "api/leaguetrace-v1.0.43.apk",
-  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.43.apk",
+  "versionCode": 44,
+  "versionName": "1.0.44",
+  "apk": "api/leaguetrace-v1.0.44.apk",
+  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.44.apk",
   "apkLatest": "api/leaguetrace-latest.apk",
-  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.43.apk",
-  "notes": "v1.0.43：学习强国化二期——积分卡升级积分中心式（细则+10格分段进度+去完成深链）、首页tab待办未读角标、我的页支部服务4×2宫格直达八大工具。签名2277d065。",
-  "mandatory": false
+  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.44.apk",
+  "notes": "v1.0.44 紧急修复：BottomNavigationView 硬上限5个导致6tab启动即崩——底栏改 TabLayout，全部功能（任务卡/角标/宫格/学习频道）保留。⚠v1.0.40-43 均会闪退，请直接安装本版覆盖（签名2277d065与v32及以前一致）。",
+  "mandatory": true
 }
