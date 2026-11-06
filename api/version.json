@@ -1,10 +1,10 @@
 {
-  "versionCode": 45,
-  "versionName": "1.0.45",
-  "apk": "api/leaguetrace-v1.0.45.apk",
-  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.45.apk",
+  "versionCode": 46,
+  "versionName": "1.0.46",
+  "apk": "api/leaguetrace-v1.0.46.apk",
+  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.46.apk",
   "apkLatest": "api/leaguetrace-latest.apk",
-  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.45.apk",
-  "notes": "v1.0.45：学习频道重做——红头版+金句、频道chips带计数、文章按来源日期倒序、最新置顶标签、圆角卡片流。修复v40-43底栏崩溃的TabLayout底栏保留。签名2277d065。",
+  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.46.apk",
+  "notes": "v1.0.46：投屏新增第6屏「数字大屏·支部全景」——金字版头+支部名+「请党放心强国有我」主题+2×2金框数据矩阵+三会两制一课年度落实金条，实时数据注入。签名2277d065。",
   "mandatory": true
 }
