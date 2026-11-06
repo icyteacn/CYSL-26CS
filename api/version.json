@@ -1,10 +1,10 @@
 {
-  "versionCode": 39,
-  "versionName": "1.0.39",
-  "apk": "api/leaguetrace-v1.0.39.apk",
-  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.39.apk",
+  "versionCode": 40,
+  "versionName": "1.0.40",
+  "apk": "api/leaguetrace-v1.0.40.apk",
+  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.40.apk",
   "apkLatest": "api/leaguetrace-latest.apk",
-  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.39.apk",
-  "notes": "v1.0.39：学习强国风改版第一弹——首页新增「学习积分·每日任务」卡：六项周期任务（月支委会/月小组会/季度大会/季度团课/周留痕/三件套80%）逐项打勾+积分计数，未完成显示「→去完成」。",
+  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.40.apk",
+  "notes": "v1.0.40：学习强国风改版第二弹——底部导航新增「学习」频道页：分类筛选chips+文章流（标题/摘要/来源），点击进内置浏览器打开原文；数据复用官方feed学习资料库（100+条），同步官方数据即更新。",
   "mandatory": false
 }
