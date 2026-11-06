@@ -1,10 +1,10 @@
 {
-  "versionCode": 37,
-  "versionName": "1.0.37",
-  "apk": "api/leaguetrace-v1.0.37.apk",
-  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.37.apk",
+  "versionCode": 38,
+  "versionName": "1.0.38",
+  "apk": "api/leaguetrace-v1.0.38.apk",
+  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.38.apk",
   "apkLatest": "api/leaguetrace-latest.apk",
-  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.37.apk",
-  "notes": "v1.0.37：点名结果一键落成留痕签到（出席名单带入编辑页）；发言速记支持语音输入（SpeechRecognizer，设备不支持自动降级）；纪要生成器支持双类型叠加（大会暨团日）。",
+  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.38.apk",
+  "notes": "v1.0.38：年度落实行新增节奏预测（达标✅/落后⚠外推）；首页待办卡并入年度节奏外推预警，与三件套/未同步/逾期/月季年度缺项同卡聚合。",
   "mandatory": false
 }

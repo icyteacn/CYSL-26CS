@@ -115,8 +115,8 @@ function mergedVols(){const seen={},out=[];
   return out}
 function st(){
   const now=Date.now();
-  const rec=realRecords(),vol=mergedVols();
-  const comp=m=>m.political==='共青团员',yout=m=>m.political==='群众';
+  const rec=DB.records.concat(feedRows()),vol=mergedVols();
+  const comp=m=>m.political!=='群众'&&m.political!=='境外线上团员',yout=m=>m.political==='群众';
   const done=r=>r.signin&&r.minutes&&r.archived;
   const cnt=(cat,yr)=>rec.filter(r=>r.category===cat&&new Date(r.date).getFullYear()===yr).length;
   const yr=new Date().getFullYear();
@@ -138,13 +138,13 @@ function st(){
     doneCnt:rec.filter(done).length,next,reminders:reminders.slice(0,8),yr,cnt};
 }
 function specRows(){const y=new Date().getFullYear();
-  const all=realRecords();
+  const all=DB.records.concat(feedRows());
   return SPEC.map(([name,cat,quota])=>{const n=all.filter(r=>
       (r.types?r.types.includes(cat):r.category===cat)&&new Date(r.date).getFullYear()===y).length;
     return{name,cat,quota,n,pct:quota?Math.min(100,Math.round(n/quota*100)):100}})}
 function index(){const rows=specRows();const six=rows.slice(0,6);
   const pct=six.reduce((s,r)=>s+r.pct,0)/six.length;
-  const all=realRecords();
+  const all=DB.records.concat(feedRows());
   const complete=all.length?all.filter(r=>r.signin&&r.minutes&&r.archived).length/all.length*100:0;
   return Math.round(pct*.7+complete*.3)}
 
@@ -202,7 +202,7 @@ window.toggleTheme=()=>{const d=document.documentElement;
 window.countUp=el=>{const txt=el.textContent;const m=txt.match(/[\d.]+/);if(!m)return;
   const target=parseFloat(m[0]);const suf=txt.slice(m.index+m[0].length);const pre=txt.slice(0,m.index);
   const t0=performance.now(),dur=700;
-  const step=t=>{if(!el.isConnected)return;const p=Math.max(0,Math.min(1,(t-t0)/dur));const e=1-Math.pow(1-p,3);
+  const step=t=>{const p=Math.min(1,(t-t0)/dur);const e=1-Math.pow(1-p,3);
     el.textContent=pre+(target%1?(target*e).toFixed(1):Math.round(target*e))+suf;
     if(p<1)requestAnimationFrame(step);else el.classList.add('num-done')};
   requestAnimationFrame(step)};
@@ -210,13 +210,11 @@ window.initFx=()=>{document.querySelectorAll('.hero .n b,.card.stat .v').forEach
   const tb=document.querySelector('.topbar');let tt=document.getElementById('toTop');
   if(!tt){tt=document.createElement('button');tt.id='toTop';tt.innerHTML='↑';
     tt.onclick=()=>scrollTo({top:0,behavior:'smooth'});document.body.appendChild(tt)}
-  window.onscroll=()=>{document.querySelector('.topbar')?.classList.toggle('slim',scrollY>40);
-    tt.classList.toggle('on',scrollY>420)}};
+  addEventListener('scroll',()=>{tb&&tb.classList.toggle('slim',scrollY>40);
+    tt.classList.toggle('on',scrollY>420)},{passive:true})};
 function greet(){const h=new Date().getHours();
   return h<6?'夜深了':h<9?'早上好':h<12?'上午好':h<14?'中午好':h<18?'下午好':'晚上好'}
 function nav(){const h=location.hash.slice(2)||'dashboard';const[name,arg]=h.split('/');
-  clearInterval(window.__cd);clearInterval(scTimer);clearInterval(window.__scClock);
-  document.removeEventListener('keydown',scKeys);
   if(!auth()){renderLock();return}
   cur=routes[name]?name:'dashboard';
   if(name==='showcase'){renderShowcase();return}
@@ -224,14 +222,15 @@ function nav(){const h=location.hash.slice(2)||'dashboard';const[name,arg]=h.spl
 function render(fn){const app=$('#app');
   app.innerHTML=topbar()+`<main><div class="page" id="pg"></div></main>`+navbar();
   fn&&fn();window.scrollTo(0,0);initFx()}
-function topbar(){return`<header class="topbar"><a class="brand" href="#/dashboard"><span class="flag">⚑</span><div><div>智团慧建 <small>CYSL</small></div>
-  <div class="sub">${BRANCH}</div></div></a><div class="sp"></div>
+function topbar(){return`<div class="topbar"><div class="brand"><span class="flag">⚑</span><div><div>CYSL 支部工作台</div>
+  <div class="sub">${BRANCH}</div></div></div><div class="sp"></div>
   <span class="role-chip">${ROLE_NAME[role()]}</span>
   <button class="tbtn" onclick="toggleTheme()" title="切换深色/浅色">${document.documentElement.dataset.theme==='dark'?'☀️':'🌙'}</button>
-  <a class="tbtn gold" href="#/impact">成果汇报 ↗</a>
-  <button class="tbtn logout" onclick="logout()" aria-label="退出身份">⇥</button></header>`}
-function navbar(){const I=[['dashboard','⌂','工作台'],['workbench','✓','工作推进'],['records','▤','留痕'],['learning','◈','学习地图'],['more','⊞','更多']];
-  return`<nav class="nav" aria-label="主导航">${I.map(([k,i,n])=>`<a href="#/${k}" ${cur===k?'aria-current="page"':''} class="${cur===k?'on':''}"><span class="i" aria-hidden="true">${i}</span>${n}</a>`).join('')}</nav>`}
+  <a class="tbtn" href="#/calendar">📅</a>
+  <a class="tbtn gold" href="#/showcase" target="_self">✦ 名片</a>
+  <button class="tbtn" onclick="logout()">⇥</button></div>`}
+function navbar(){const I=[['dashboard','⌂','首页'],['records','🗂','留痕'],['volunteer','♥','志愿'],['projects','🚀','立项'],['party','🏛','入党'],['knowledge','📖','学习'],['members','👥','成员'],['system','⚙','体系']];
+  return`<div class="nav" style="overflow-x:auto">${I.map(([k,i,n])=>`<a href="#/${k}" class="${cur===k?'on':''}" style="flex-shrink:0"><span class="i">${i}</span>${n}</a>`).join('')}</div>`}
 window.logout=()=>{sessionStorage.removeItem(AUTH_KEY);location.hash='#/dashboard';renderLock()};
 
 /* ================= 锁屏 ================= */
@@ -400,11 +399,7 @@ function feedRows(){if(!FEED||!FEED.records)return[];
     location:r.location||'',attendees:r.attendees||Math.max(0,(r.expected||[]).length-(r.absent||[]).length),host:r.host||'',
     summary:r.summary||'',expected:r.expected||[],floating:r.floating||[],
     absent:r.absent||[],observers:r.observers||[],attachments:r.attachments||[],
-    photoUrls:r.photoUrls||[],photos:Math.max(Number(r.photos)||0,(r.photoUrls||[]).length),projectName:r.project||'',
     signin:true,minutes:!!r.summary,archived:true,synced:true}))}
-function isSample(r){return r.category==='示例模板'||String(r.title).startsWith('【示例】')}
-function realRecords(){const found=new Map();DB.records.filter(r=>!isSample(r)).concat(feedRows()).forEach(r=>{
-  found.set(r.title+'|'+fmt(r.date),r)});return [...found.values()]}
 function pgFeedRec(idx){const r=feedRows()[idx],pg=$('#pg');
   if(!r){pg.innerHTML='<div class="empty">记录不存在</div>';return}
   const aL=l=>l&&l.length?l.map(x=>`<span class="bd y" style="margin:2px 6px 2px 0;display:inline-block">${esc(x)}</span>`).join(''):'<span style="color:var(--mut)">无</span>';
@@ -417,7 +412,6 @@ function pgFeedRec(idx){const r=feedRows()[idx],pg=$('#pg');
     <dt>应到</dt><dd>${exp} 人</dd><dt>实到</dt><dd>${real} 人</dd>
     <dt>缺席</dt><dd>${r.absent.length} 人</dd><dt>流动团员</dt><dd>无</dd>
     ${r.attachments.length?`<dt>活动资料</dt><dd>${r.attachments.map(a=>{const s=typeof a==='string'?a.split('|'):null;const n=s?s[0]:(a.name||'附件');const u=s?(s[1]||''):(a.url||'');return u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(n)} ↗</a>`:esc(n)}).join('<br>')}</dd>`:''}</dl>
-    ${r.photoUrls.length?`<div class="sect">照片资料 · 点击查看完整图片</div><div class="evidence-photos">${r.photoUrls.map(u=>/^https?:\/\//.test(u)?`<a href="${esc(u)}" target="_blank" rel="noopener"><img loading="lazy" src="${esc(u)}" alt="${esc(r.title)}现场资料"></a>`:'').join('')}</div>`:''}
     <div class="sect">会议内容</div><div class="paper">${esc(r.summary||'（未填写）')}</div></div>
   <div class="card" style="margin-top:14px"><h3><span class="dot"></span>参会人员</h3>
     <div class="sect">应参加团员（${r.expected.length}人）</div><div>${aL(r.expected)}</div>
@@ -427,7 +421,7 @@ function pgFeedRec(idx){const r=feedRows()[idx],pg=$('#pg');
 function pgRecords(){const pg=$('#pg');
   pg.innerHTML=`<div class="page-h"><h2>留痕台账</h2><span class="hint">"三件套"留痕标准 · 点击记录看详情</span></div>
   <div class="chips"><button class="fchip ${!recFilter.cat?'on':''}" onclick="setCat('')">全部</button>
-  ${[...CATS,'示例模板'].map(c=>`<button class="fchip ${recFilter.cat===c?'on':''}" onclick="setCat('${c}')">${c}</button>`).join('')}</div>
+  ${CATS.map(c=>`<button class="fchip ${recFilter.cat===c?'on':''}" onclick="setCat('${c}')">${c}</button>`).join('')}</div>
   <div class="search"><input id="rq" placeholder="搜索标题 / 地点 / 摘要…" value="${esc(recFilter.q)}" oninput="recFilter.q=this.value;listRecords()">
   <a class="btn ghost" href="#/calendar">📅 月历</a></div>
   <div class="card" id="rl"></div>
@@ -437,7 +431,7 @@ window.setCat=c=>{recFilter.cat=c;pgRecords()};
 function listRecords(){const q=recFilter.q.toLowerCase();
   const hit=r=>(!recFilter.cat||(r.types?r.types.includes(recFilter.cat):r.category===recFilter.cat))&&
     (!q||(r.title+r.location+(r.summary||'')).toLowerCase().includes(q));
-  const list=(recFilter.cat==='示例模板'?DB.records.filter(isSample).filter(r=>!q||r.title.toLowerCase().includes(q)):realRecords().filter(hit)).sort((a,b)=>b.date-a.date);
+  const list=DB.records.filter(hit).concat(feedRows().filter(hit)).sort((a,b)=>b.date-a.date);
   $('#rl').innerHTML=list.map(r=>rowHTML(r)).join('')||'<div class="empty"><span class="big">🗂</span>没有匹配的留痕记录</div>'}
 function pgRecord(id){const r=DB.records.find(x=>x.id==id),pg=$('#pg');
   if(!r){pg.innerHTML='<div class="empty">记录不存在</div>';return}
@@ -799,7 +793,19 @@ function renderShowcase(){const s=st();document.title='CYSL · 支部名片';
       <div class="sc-panel" style="max-width:340px"><h4>PROJECT · 重点立项</h4>
       ${DB.projects.slice(0,2).map(p=>`<div style="margin-bottom:16px"><div style="font-size:14px;font-weight:700;line-height:1.4">${esc(p.name)}</div>
       <div class="pbar" style="margin-top:8px;background:rgba(255,255,255,.12)"><i style="width:${p.progress}%;background:linear-gradient(90deg,#f6d9a0,#e8b45a)"></i></div>
-      <div style="font-size:11px;opacity:.6;margin-top:5px">${PSTATUS[p.status]} · ${p.progress}%</div></div>`).join('')||'<div style="opacity:.6">暂无立项</div>'}</div>`}];
+      <div style="font-size:11px;opacity:.6;margin-top:5px">${PSTATUS[p.status]} · ${p.progress}%</div></div>`).join('')||'<div style="opacity:.6">暂无立项</div>'}</div>`},
+    {n:'支部名片·荣誉',h:`<div class="sc-panel" style="justify-content:center;align-items:center;text-align:center">
+      <div style="font-size:11px;letter-spacing:.35em;opacity:.55;margin-bottom:12px">LEAGUE BRANCH · 支部大名片</div>
+      <div style="font-size:clamp(24px,4.2vw,46px);font-weight:900;line-height:1.3;background:linear-gradient(120deg,#f6d9a0,#fff,#e8b45a);-webkit-background-clip:text;background-clip:text;color:transparent">${BRANCH}</div>
+      <div class="sc-kpis" style="grid-template-columns:repeat(3,1fr);width:100%;margin-top:26px">
+        <div class="sc-kpi"><b>${s.memberCnt}</b><span>支部成员</span></div>
+        <div class="sc-kpi"><b>${s.recCnt}</b><span>留痕记录</span></div>
+        <div class="sc-kpi"><b>${s.volHours}h</b><span>志愿时长</span></div></div>
+      <div style="margin-top:auto;font-size:11.5px;opacity:.55">数据来自本地台账 + 官方 feed 合并 · 实时计算</div></div>
+      <div class="sc-panel" style="max-width:340px"><h4>HONORS · 荣誉墙</h4>
+      ${DB.honors.length?DB.honors.slice().sort((a,b)=>b.date-a.date).slice(0,6).map(h=>`<div class="sc-row" style="font-size:15px">🏆 ${esc(h.title)}<b style="margin-left:auto;color:var(--gold-l);font-size:11px">${esc(h.level||'')}</b></div>`).join('')
+        +`<div class="sc-lb" style="margin-top:auto">累计 ${DB.honors.length} 项荣誉</div>`
+        :'<div class="sc-lb">暂无荣誉记录<br><small style="opacity:.7">数据页登记后此处自动展示</small></div>'}</div>`}];
   $('#app').innerHTML=`<div class="showcase">
   <div class="sc-top"><span class="flag">⚑</span><div><h1>${BRANCH} · 支部名片</h1>
   <div class="en">CYSL DIGITAL LEAGUE-BRANCH SYSTEM</div></div>
