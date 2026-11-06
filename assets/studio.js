@@ -199,7 +199,7 @@ function pgMore(){const pg=$('#pg');
   const tiles=[['volunteer','♥','志愿服务','时长公示台账'],['projects','🚀','团立项','进度与材料'],
    ['party','🏛','推优入党','培养考察链'],['knowledge','📖','学习资料','制度与原文库'],
    ['calendar','📅','支部日历','月度视图'],['members','👥','成员名册','构成与工时'],
-   ['meet','📝','会议助手','通知纪要一键生成'],['official','📣','官方公示','公示与发布'],['system','⚙','体系建设','年报·荣誉·设置'],
+   ['meet','📝','会议助手','通知纪要一键生成'],['ops','⚙️','数据运维','迎检打包·合并·预测'],['official','📣','官方公示','公示与发布'],['system','⚙','体系建设','年报·荣誉·设置'],
    ['showcase','✦','名片展示','投屏汇报模式'],['checkin','📱','扫码签到','活动签到入口']];
   pg.innerHTML=`<div class="page-h"><h2>全部功能</h2><span class="hint">十个模块 · 点击直达</span></div>
   <div class="more-grid">${tiles.map(([k,i,n,d])=>`<a class="more-tile" href="#/${k}">
@@ -270,3 +270,63 @@ function pgMeet(){const pg=$('#pg');const today=new Date().toISOString().slice(0
 
 routes.workbench=pgWorkbench;routes.learning=pgLearning;
 routes.impact=pgImpact;routes.more=pgMore;routes.meet=pgMeet;
+
+/* ---------- 数据运维：迎检打包 / 台账合并 / 节奏预测 ---------- */
+window.dl=(name,txt,mime)=>{const b=new Blob([txt],{type:mime||'text/plain;charset=utf-8'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();
+ setTimeout(()=>URL.revokeObjectURL(a.href),3000)};
+
+window.exportAudit=()=>{const yr=new Date().getFullYear();
+ const rec=realRecords().filter(r=>new Date(r.date).getFullYear()===yr)
+  .sort((a,b)=>a.date<b.date?-1:1);
+ let s='# '+BRANCH+' '+yr+'年度团支部工作台账（迎检材料）\n\n> 导出时间：'+new Date().toLocaleString('zh-CN')+' · 共 '+rec.length+' 条\n\n';
+ rec.forEach((r,i)=>{const tp=r.types?r.types.join('+'):(r.category||r.type||'');
+  s+='## '+(i+1)+'. '+(r.title||'')+'\n- 类别：'+tp+'\n- 时间：'+r.date+(r.location?'\n- 地点：'+r.location:'')
+   +(r.host?'\n- 主持：'+r.host:'')+(r.attendees!=null?'\n- 参加人数：'+r.attendees+' 人':'')
+   +'\n- 三件套：签到'+(r.signin?'✓':'✗')+' 纪要'+(r.minutes?'✓':'✗')+' 照片'+(r.archived?'✓':'✗')
+   +'\n\n'+(r.summary||'（无纪要）')+'\n\n---\n\n'});
+ dl('支部台账_迎检包_'+yr+'.md',s,'text/markdown;charset=utf-8');
+ toast('迎检台账已导出 '+rec.length+' 条')};
+
+window.exportDB=()=>{dl('cysl_db_'+new Date().toISOString().slice(0,10)+'.json',
+ JSON.stringify(DB,null,1),'application/json');toast('全量数据已导出')};
+
+window.importDB=()=>{const inp=document.createElement('input');inp.type='file';inp.accept='.json';
+ inp.onchange=()=>{const f=inp.files[0];if(!f)return;const rd=new FileReader();
+  rd.onload=()=>{try{const d=JSON.parse(rd.result);
+   const recs=d.records||(Array.isArray(d)?d:null);if(!recs){toast('文件中没有 records');return}
+   const key=r=>(r.title||'')+'|'+(r.date||'');
+   const have=new Set(DB.records.map(key));let add=0;
+   recs.forEach(r=>{if(!have.has(key(r))){r.id=r.id||nextId(DB.records);DB.records.push(r);add++}});
+   if(d.volunteers){const vkey=v=>(v.member||v.memberName||'')+'|'+(v.activity||'')+'|'+(v.date||'');
+    const vh=new Set((DB.volunteers||[]).map(vkey));DB.volunteers=DB.volunteers||[];
+    d.volunteers.forEach(v=>{if(!vh.has(vkey(v))){v.id=v.id||nextId(DB.volunteers);DB.volunteers.push(v);add++}})}
+   save();toast('合并完成：新增 '+add+' 条（按 标题+日期 去重）');nav()}
+   catch(e){toast('解析失败：'+e.message)}};rd.readAsText(f)};inp.click()};
+
+function paceRows(){const rows=specRows();const now=new Date();
+ const m=now.getMonth()+1,y=now.getFullYear();
+ const start=new Date(m>=9?y:y-1,8,1).getTime(),end=new Date(m>=9?y+1:y,7,31).getTime();
+ const el=Math.min(1,Math.max(0.05,(now.getTime()-start)/(end-start)));
+ return rows.map(r=>{const expect=r.quota*el,proj=r.n/Math.max(el,0.01);
+  const lag=r.n<expect-0.5;
+  return {...r,el:Math.round(el*100),expect:expect.toFixed(1),proj:Math.round(proj*10)/10,
+   lag,ok:!lag&&r.n>=r.quota}})}
+
+function pgOps(){const pg=$('#pg');const pr=paceRows();
+ pg.innerHTML=`<div class="page-h"><h2>数据运维</h2><span class="hint">迎检打包 · 多设备合并 · 节奏预测</span></div>
+ <div class="card"><h3><span class="dot"></span>📦 迎检材料一键打包</h3>
+  <div style="font-size:12.5px;color:var(--mut);margin-bottom:10px">导出本学年度全部留痕为台账 Markdown：含类别/时间/人数/三件套标记/纪要全文，打印即迎检台账。</div>
+  <button class="btn red" style="width:100%" onclick="exportAudit()">📦 导出迎检台账（.md）</button></div>
+ <div class="card" style="margin-top:14px"><h3><span class="dot"></span>🔄 多设备台账合并</h3>
+  <div style="font-size:12.5px;color:var(--mut);margin-bottom:10px">A 设备导出 → B 设备导入，按「标题+日期」自动去重合并（记录+志愿工时），无需后端。</div>
+  <div style="display:flex;gap:8px"><button class="btn" style="flex:1" onclick="exportDB()">📤 导出全量数据</button>
+  <button class="btn" style="flex:1" onclick="importDB()">📥 导入并合并</button></div></div>
+ <div class="card" style="margin-top:14px"><h3><span class="dot"></span>📈 年度节奏预测</h3>
+  <div style="font-size:12px;color:var(--mut);margin-bottom:8px">学年已过去 <b>${pr.length?pr[0].el:0}%</b> —— 按当前速率外推全年完成量，落后项标红：</div>
+  ${pr.map(r=>`<div class="vrow"><span class="nm" style="width:110px">${r.name}</span>
+   <span class="bar"><i style="width:${r.pct}%;${r.lag?'background:#c62828':''}"></i></span>
+   <span class="hv" style="width:150px">${r.n}/${r.quota} ${r.ok?'✅':r.lag?'⚠️落后':'🟡'} 外推${r.proj}</span></div>`).join('')}
+  <div style="font-size:11.5px;color:var(--mut);margin-top:8px">口径：学年 9.1–8.31；⚠️=当前数 < 配额×进度；外推=当前数÷进度</div></div>`}
+routes.ops=pgOps;
+
