@@ -177,3 +177,8 @@ html[data-theme="dark"] .copy-block{background:#1c1312;border-color:var(--line);
   .more-grid{grid-template-columns:repeat(2,1fr)}
   .kpi-grid{grid-template-columns:repeat(2,1fr)}
 }
+
+/* 会议助手表单 */
+.inp{width:100%;padding:10px 13px;border-radius:11px;border:1.5px solid var(--line,#ddd);background:var(--card,#fff);box-sizing:border-box}
+.inp:focus{border-color:var(--red);outline:none}
+

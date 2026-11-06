@@ -199,7 +199,7 @@ function pgMore(){const pg=$('#pg');
   const tiles=[['volunteer','♥','志愿服务','时长公示台账'],['projects','🚀','团立项','进度与材料'],
    ['party','🏛','推优入党','培养考察链'],['knowledge','📖','学习资料','制度与原文库'],
    ['calendar','📅','支部日历','月度视图'],['members','👥','成员名册','构成与工时'],
-   ['official','📣','官方公示','公示与发布'],['system','⚙','体系建设','年报·荣誉·设置'],
+   ['meet','📝','会议助手','通知纪要一键生成'],['official','📣','官方公示','公示与发布'],['system','⚙','体系建设','年报·荣誉·设置'],
    ['showcase','✦','名片展示','投屏汇报模式'],['checkin','📱','扫码签到','活动签到入口']];
   pg.innerHTML=`<div class="page-h"><h2>全部功能</h2><span class="hint">十个模块 · 点击直达</span></div>
   <div class="more-grid">${tiles.map(([k,i,n,d])=>`<a class="more-tile" href="#/${k}">
@@ -210,5 +210,63 @@ function pgMore(){const pg=$('#pg');
   当前 feed 版本：v${FEED?FEED.version:'—'} · 记录 ${realRecords().length} 条 · 成员 ${DB.members.length} 人</div></div>`}
 
 /* ---------- 路由注册 ---------- */
+
+/* ---------- 会议助手（App 纪要生成器网页版） ---------- */
+const MEET_TYPES=[
+ ["支部团员大会","奏唱团歌\n第一议题·理论学习\n支部委员会工作报告\n讨论与决议事项\n上级团委点评（如有）\n总结","支部大会"],
+ ["支部委员会","第一议题·理论学习\n上月工作复盘\n本月议题研究\n任务分工与部署","其他"],
+ ["团小组会","传达支部决议\n主题学习与讨论\n团员意见建议收集\n小组工作小结","其他"],
+ ["团员教育评议","学习动员\n团员个人自评\n团员互评\n民主测评\n评议结果总结","组织生活会"],
+ ["团员年度团籍注册","注册工作说明\n团员材料核对\n年度注册确认\n问题答疑","其他"],
+ ["团课","导入\n主题讲授\n交流研讨\n总结提升","团课"],
+ ["主题团日","主题学习\n实践/仪式环节\n团员交流分享\n总结","主题团日"],
+ ["志愿服务","任务说明与分工\n服务实施\n时长确认\n心得交流","其他"],
+ ["推优入党","推优标准宣读\n候选人陈述\n民主评议\n无记名表决\n结果公示说明","其他"],
+ ["谈心谈话","谈心对象与缘由\n谈话要点\n意见建议记录","其他"],
+ ["立项活动","活动目标与分工\n实施过程记录\n阶段成果与下一步安排","其他"],
+ ["其他","（自由填写议程要点）","其他"]];
+function mtV(id){const e=document.getElementById('mt_'+id);return e?e.value.trim():''}
+function mtType(){return MEET_TYPES[+mtV('type')||0]}
+function meetMinutes(){const t=mtType();let s=t[0]+'会议纪要\n时间：'+mtV('date')+'\n';
+ if(mtV('loc'))s+='地点：'+mtV('loc')+'\n';if(mtV('host'))s+='主持人：'+mtV('host')+'\n';
+ if(mtV('expect')||mtV('actual')){s+='参加人员：应到'+(mtV('expect')||'-')+'人，实到'+(mtV('actual')||'-')+'人';
+  if(mtV('absent'))s+='，缺席：'+mtV('absent');s+='\n'}
+ s+='会议内容：\n'+mtV('topics')+'\n';if(mtV('res'))s+='决议事项：\n'+mtV('res')+'\n';return s.trim()}
+function meetZhtj(){const t=mtType();let s='—— 智慧团建 · 教育实践录入对照 ——\n类别：'+t[2]+'\n专题：（按上级当期专题选择）\n开展时间：'+mtV('date')+'\n';
+ if(mtV('actual'))s+='参加团员：'+mtV('actual')+' 人\n';
+ s+='内容：'+t[0]+'于'+mtV('date')+(mtV('loc')?'在'+mtV('loc'):'')+'开展';
+ if(mtV('host'))s+='，由'+mtV('host')+'主持';
+ const tp=mtV('topics').split('\n').filter(x=>x.trim());
+ if(tp.length)s+='。议程包括：'+tp.slice(0,6).join('、');
+ if(mtV('res'))s+='；形成决议：'+mtV('res').split('\n')[0];
+ return s+'。\n（图片请在智慧团建「上传图片资料」处补充留痕照片）'}
+function meetNotice(){const t=mtType();let s='【会议通知】\n兹定于 '+mtV('date')+(mtV('loc')?' 在 '+mtV('loc'):'')+' 召开'+t[0]+'。\n';
+ const tp=mtV('topics');if(tp&&!tp.startsWith('（自由'))s+='主要议程：'+tp.replace(/\n/g,'；')+'\n';
+ s+='请全体团员提前安排好时间，准时参加；如确需请假，请提前向支部书记说明。';
+ if(mtV('host'))s+='\n主持人：'+mtV('host');return s}
+window.meetOut=kind=>{const txt=kind==='notice'?meetNotice():kind==='zhtj'?meetZhtj():meetMinutes();
+ document.getElementById('mt_out').textContent=txt;
+ navigator.clipboard&&navigator.clipboard.writeText(txt).then(()=>toast('已复制，可直接粘贴')).catch(()=>{})};
+function pgMeet(){const pg=$('#pg');const today=new Date().toISOString().slice(0,10);
+ pg.innerHTML=`<div class="page-h"><h2>会议助手</h2><span class="hint">模板自选 · 通知/纪要/智慧团建录入一键生成</span></div>
+ <div class="card"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px">
+ <label style="font-size:12px;color:var(--mut)">类型<select id="mt_type" class="inp" style="width:100%">${MEET_TYPES.map((t,i)=>`<option value="${i}">${t[0]}</option>`).join('')}</select></label>
+ <label style="font-size:12px;color:var(--mut)">日期<input id="mt_date" type="date" class="inp" value="${today}" style="width:100%"></label>
+ <label style="font-size:12px;color:var(--mut)">地点<input id="mt_loc" class="inp" placeholder="教学楼/线上" style="width:100%"></label>
+ <label style="font-size:12px;color:var(--mut)">主持人<input id="mt_host" class="inp" placeholder="党员80" style="width:100%"></label>
+ <label style="font-size:12px;color:var(--mut)">应到<input id="mt_expect" type="number" class="inp" placeholder="20" style="width:100%"></label>
+ <label style="font-size:12px;color:var(--mut)">实到<input id="mt_actual" type="number" class="inp" placeholder="18" style="width:100%"></label>
+ <label style="font-size:12px;color:var(--mut)">缺席<input id="mt_absent" class="inp" placeholder="团员xx、…" style="width:100%"></label></div>
+ <label style="display:block;margin-top:10px;font-size:12px;color:var(--mut)">议程/会议内容（按类型预填可改）<textarea id="mt_topics" class="inp" rows="6" style="width:100%"></textarea></label>
+ <label style="display:block;margin-top:8px;font-size:12px;color:var(--mut)">决议事项（可空）<textarea id="mt_res" class="inp" rows="2" style="width:100%"></textarea></label>
+ <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+ <button class="btn red" onclick="meetOut('notice')">📢 复制会前通知</button>
+ <button class="btn" onclick="meetOut('minutes')">📋 复制台账纪要</button>
+ <button class="btn" onclick="meetOut('zhtj')">🏛 复制智慧团建录入</button></div>
+ <pre id="mt_out" style="margin-top:12px;white-space:pre-wrap;font-size:12.5px;background:var(--soft,#f6f6f6);padding:10px;border-radius:8px"></pre></div>`;
+ const sel=document.getElementById('mt_type');
+ sel.onchange=()=>{document.getElementById('mt_topics').value=MEET_TYPES[+sel.value][1];meetOut('minutes')};
+ sel.onchange();}
+
 routes.workbench=pgWorkbench;routes.learning=pgLearning;
-routes.impact=pgImpact;routes.more=pgMore;
+routes.impact=pgImpact;routes.more=pgMore;routes.meet=pgMeet;
