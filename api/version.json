@@ -1,10 +1,10 @@
 {
-  "versionCode": 42,
-  "versionName": "1.0.42",
-  "apk": "api/leaguetrace-v1.0.42.apk",
-  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.42.apk",
+  "versionCode": 43,
+  "versionName": "1.0.43",
+  "apk": "api/leaguetrace-v1.0.43.apk",
+  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.43.apk",
   "apkLatest": "api/leaguetrace-latest.apk",
-  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.42.apk",
-  "notes": "v1.0.42：签名回归 cover-debug(2277d065)——修复v33-41签名与v32及以前不一致导致的旧版无法覆盖安装问题；含学习频道页+积分任务卡+支部名片卡全部新功能。",
+  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.43.apk",
+  "notes": "v1.0.43：学习强国化二期——积分卡升级积分中心式（细则+10格分段进度+去完成深链）、首页tab待办未读角标、我的页支部服务4×2宫格直达八大工具。签名2277d065。",
   "mandatory": false
 }
