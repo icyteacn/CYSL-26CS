@@ -1,10 +1,10 @@
 {
-  "versionCode": 44,
-  "versionName": "1.0.44",
-  "apk": "api/leaguetrace-v1.0.44.apk",
-  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.44.apk",
+  "versionCode": 45,
+  "versionName": "1.0.45",
+  "apk": "api/leaguetrace-v1.0.45.apk",
+  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.45.apk",
   "apkLatest": "api/leaguetrace-latest.apk",
-  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.44.apk",
-  "notes": "v1.0.44 紧急修复：BottomNavigationView 硬上限5个导致6tab启动即崩——底栏改 TabLayout，全部功能（任务卡/角标/宫格/学习频道）保留。⚠v1.0.40-43 均会闪退，请直接安装本版覆盖（签名2277d065与v32及以前一致）。",
+  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.45.apk",
+  "notes": "v1.0.45：学习频道重做——红头版+金句、频道chips带计数、文章按来源日期倒序、最新置顶标签、圆角卡片流。修复v40-43底栏崩溃的TabLayout底栏保留。签名2277d065。",
   "mandatory": true
 }
