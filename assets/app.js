@@ -512,6 +512,43 @@ function drawCal(){const[y,m]=calYm;$('#calt').textContent=`${y}年${m+1}月`;
   $('#call').innerHTML=(calSel!=null||list.length?list:DB.records.filter(r=>day0(r.date)===today()))
     .map(r=>rowHTML(r)).join('')||'<div class="empty" style="padding:16px">当日无留痕活动</div>'}
 
+/* ================= 活力评比榜 ================= */
+let rankPeriod='year'; // year | month
+window.rankSetP=p=>{rankPeriod=p;pgVol()};
+function rankRows(){
+  const now=new Date();
+  const y0=now.getMonth()>=8?now.getFullYear():now.getFullYear()-1;
+  const yrStart=new Date(y0,8,1).getTime();
+  const mStart=new Date(now.getFullYear(),now.getMonth(),1).getTime();
+  const lo=rankPeriod==='month'?mStart:yrStart;
+  const inP=t=>t>=lo;
+  const agg={};
+  DB.members.forEach(m=>{agg[m.name]={m,h:0,vol:0,att:0}});
+  mergedVols().forEach(v=>{const nm=v.name||((DB.members.find(x=>x.id===v.memberId)||{}).name);
+    const a=agg[nm];if(a&&inP(v.date)){a.h+=v.hours;a.vol++}});
+  DB.records.concat(feedRows()).forEach(r=>{if(!inP(r.date))return;
+    const exp=new Set(r.expected||[]);(r.absent||[]).forEach(n=>exp.delete(n));
+    exp.forEach(n=>{if(agg[n])agg[n].att++})});
+  return Object.values(agg).map(a=>({...a,score:a.h*2+a.vol*3+a.att}))
+    .sort((x,y)=>y.score-x.score||y.h-x.h)}
+function rankCard(){
+  const rows=rankRows();
+  const top=rows.filter(r=>r.score>0);
+  const medal=['🥇','🥈','🥉'];
+  const btn=p=>`<button class="btn ${rankPeriod===p?'':'ghost'} sm" onclick="rankSetP('${p}')">${p==='year'?'学年榜':'月度榜'}</button>`;
+  const podium=top.slice(0,3).map((r,i)=>`<div style="flex:1;text-align:center;padding:10px 4px;background:${i===0?'linear-gradient(180deg,#fff7e0,#fdf0cd)':'#faf6ee'};border-radius:12px;border:1px solid ${i===0?'#e8c97a':'var(--line)'}">
+    <div style="font-size:26px">${medal[i]}</div>
+    <div style="font-weight:800;font-size:15px;margin-top:2px">${esc(mask(r.m.name))}</div>
+    <div style="font-size:22px;font-weight:900;color:var(--red-d);margin:2px 0">${r.score}</div>
+    <div style="font-size:11px;color:var(--mut)">${r.h}h·${r.vol}次服务·${r.att}次出席</div></div>`).join('');
+  const rest=top.slice(3).map((r,i)=>`<div class="vrow"><span class="nm"><b style="color:var(--mut)">${i+4}</b>　${esc(mask(r.m.name))}</span>
+    <span class="bar"><i style="width:${Math.min(100,r.score/Math.max(1,top[0].score)*100)}%"></i></span>
+    <span class="hv">${r.score}分</span></div>`).join('');
+  return `<div class="card" style="margin-top:14px"><h3><span class="dot"></span>活力评比榜 · 实时更新
+    <span style="margin-left:auto;display:flex;gap:6px">${btn('year')}${btn('month')}</span></h3>
+    ${top.length?`<div style="display:flex;gap:8px;margin:6px 0 12px">${podium}</div>${rest}
+    <div style="font-size:11px;color:var(--mut);margin-top:10px">积分 = 志愿时长×2 + 服务次数×3 + 活动出席×1 ｜ 范围：${rankPeriod==='year'?'本学年（9月起）':'本月'} ｜ 随台账与志愿记录实时计算</div>`
+    :'<div class="empty"><span class="big">🏅</span>本周期暂无积分数据<br><small>登记志愿时长或留痕活动出席后自动生成榜</small></div>'}</div>`}
 /* ================= 志愿服务 ================= */
 function pgVol(){const pg=$('#pg');const s=st();
   const byM={};mergedVols().forEach(v=>{byM[v.memberId]=(byM[v.memberId]||0)+v.hours});
@@ -522,6 +559,7 @@ function pgVol(){const pg=$('#pg');const s=st();
     <div class="card stat"><span class="ico">♥</span><span class="v">${s.volHours}</span><span class="l">累计志愿时长（小时）</span></div>
     <div class="card stat"><span class="ico">✋</span><span class="v">${s.volCnt}</span><span class="l">服务人次</span></div>
     <div class="card stat"><span class="ico">👥</span><span class="v">${s.total?(s.volHours/s.total).toFixed(1):0}</span><span class="l">人均时长</span></div></div>
+  ${rankCard()}
   <div class="card" style="margin-top:14px"><h3><span class="dot"></span>时长排行 TOP10</h3>
     <canvas class="chart" id="vchart" ${rows.some(r=>r.h>0)?'':'style="display:none"'}></canvas>
     ${rows.some(r=>r.h>0)?'':'<div class="empty"><span class="big">📊</span>暂无志愿时长记录<br><small>按实登记后自动生成排行</small></div>'}</div>
@@ -783,10 +821,11 @@ function renderShowcase(){const s=st();document.title='CYSL · 支部名片';
         <div class="sc-kpi"><b>${g['一课']}</b><span>“一课”开展</span></div>
         <div class="sc-kpi"><b>${triad}</b><span>三件套完备</span></div></div>
         <div class="sc-lb" style="margin-top:14px;text-align:left">签到+纪要+3图 为一条完备留痕，完备率 ${allR.length?Math.round(triad/allR.length*100):0}%</div>`})()}</div>
-      <div class="sc-panel" style="max-width:340px"><h4>STAR · 志愿之星</h4>
-      ${(()=>{const agg={};mergedVols().forEach(v=>{agg[v.name]=(agg[v.name]||0)+v.hours});
-        const top=Object.entries(agg).sort((a,b)=>b[1]-a[1]).slice(0,3);
-        return top.length?top.map(([n,h],i)=>`<div class="sc-row" style="font-size:17px">${'🥇🥈🥉'[i]} ${esc(mask(n))} <b style="margin-left:auto;color:var(--gold)">${h}h</b></div>`).join(''):'<div class="sc-lb">暂无志愿记录</div>'})()}
+      <div class="sc-panel" style="max-width:340px"><h4>STAR · 活力之星</h4>
+      ${(()=>{const saved=rankPeriod;rankPeriod='year';const top=rankRows().filter(r=>r.score>0).slice(0,3);rankPeriod=saved;
+        return top.length?top.map((r,i)=>`<div class="sc-row" style="font-size:17px">${'🥇🥈🥉'[i]} ${esc(mask(r.m.name))} <b style="margin-left:auto;color:var(--gold)">${r.score}分</b></div>`).join('')
+        +'<div class="sc-lb" style="margin-top:10px;font-size:11px;opacity:.7">积分=时长×2+服务×3+出席×1 · 实时</div>'
+        :'<div class="sc-lb">暂无志愿记录</div>'})()}
       <div class="sc-lb" style="margin-top:auto">累计服务 ${s.volHours} 小时</div></div>`},
     {n:'风采动态',h:`<div class="sc-panel"><h4>RECENT · 留痕风采</h4><div class="sc-list">
       ${DB.records.concat(feedRows()).sort((a,b)=>b.date-a.date).slice(0,8).map(r=>`<div class="it"><span>${CAT_ICON[r.category]||''} ${esc(r.title)}</span><span style="opacity:.6">${fmtYMD(r.date)}</span></div>`).join('')||'<div style="opacity:.6">暂无记录</div>'}</div></div>
