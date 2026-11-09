@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "智团慧建",
   "appid": "",
   "description": "团支部工作平台 · 公告/留痕/成员/荣誉随身查",
@@ -27,6 +27,6 @@
     }
   },
   "quickapp": {},
-  "mp-weixin": { "appid": "", "setting": { "urlCheck": false, "es6": true, "minified": true } },
-  "h5": { "title": "智团慧建" }
+  "mp-weixin": { "appid": "wx313c28f3fdf79289", "setting": { "urlCheck": false, "es6": true, "minified": true } },
+  "h5": { "title": "智团慧建", "router": { "mode": "hash" }, "publicPath": "./" }
 }

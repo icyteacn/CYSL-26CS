@@ -1,10 +1,10 @@
-# 客户端上架部署清单 · 智团慧建（CYSL-26CS）
+﻿# 客户端上架部署清单 · 智团慧建（CYSL-26CS）
 
 > 双端源码已就绪（`app-uniapp/` iOS、`mp-weixin/` 微信小程序）。团员端**只读**：读 `data/state.json` + `data/feed.json`，无任何写凭据。
 
 ## 一、微信小程序（约 15 分钟）
 
-1. [mp.weixin.qq.com](https://mp.weixin.qq.com) 注册小程序 → 拿 **AppID** → 填入 `mp-weixin/project.config.json` → 开发者工具导入 `mp-weixin/`。
+1. [mp.weixin.qq.com](https://mp.weixin.qq.com) 注册小程序 → 拿 **AppID** → AppID 已填 `wx313c28f3fdf79289` → 开发者工具直接导入 `mp-weixin/`。
 2. **request 合法域名**（开发设置 → 服务器域名）：
    - `https://icyteacn.github.io`
    - `https://cdn.jsdelivr.net`
@@ -13,7 +13,7 @@
 
 ## 二、iOS App（uni-app）
 
-- **零成本路线**：HBuilderX → 发行 H5 → 托管静态站 → iOS 用户「添加到主屏幕」。
+- **零成本路线（已选定）**：HBuilderX → 发行 H5 → 托管静态站 → iOS 用户「添加到主屏幕」。
 - **正式 ipa**：Apple 开发者账号 **$99/年** → 生成 p12 证书 + mobileprovision → `manifest.json` 填 **DCloud appid**（dcloud.net.cn 免费）→ HBuilderX 云打包 → App Store Connect / TestFlight 分发。
 
 ## 三、支委写权限（state.json 入库，约 5 分钟）
