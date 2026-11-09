@@ -32,10 +32,10 @@
 <script setup>
 import { computed } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
-import { fetchAll, state, norm, volByMember, dateText } from '../../utils/api.js';
+import { fetchAll, membersList, honorsList, volByMember, dateText } from '../../utils/api.js';
 
-const members = computed(() => norm(state.value && state.value.members));
-const honors = computed(() => norm(state.value && state.value.honors));
+const members = computed(() => membersList());
+const honors = computed(() => honorsList());
 const vol = computed(() => volByMember());
 onShow(() => fetchAll());
 </script>

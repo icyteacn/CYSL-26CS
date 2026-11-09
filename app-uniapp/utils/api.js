@@ -1,5 +1,5 @@
 // 文件路径: /cysl-web/app-uniapp/utils/api.js
-// 读取 canonical 后端：data/state.json（成员/记录/志愿/立项/荣誉）+ data/feed.json（公告）
+// 读取 canonical 后端：data/state.json（正式库）+ data/feed.json（公告/公开留痕兜底）
 // 与网站/App 同一份数据（uni-app 团员端只读，不写正式库）
 import { ref } from 'vue';
 
@@ -12,7 +12,7 @@ const SRC = p => [
 ];
 
 export const state = ref(null);   // {members,records,volunteers,projects,honors}
-export const feed = ref(null);    // {items:[...]}
+export const feed = ref(null);    // {notices,records,volunteers,schedule,...}
 export const source = ref('');
 
 const CK = 'cysl_state_v1', CF = 'cysl_feed_v1', CT = 'cysl_sync_t';
@@ -49,20 +49,39 @@ export async function fetchAll(force = false) {
 }
 export function preload() { fetchAll().catch(() => {}); }
 
-export function norm(v) { return Array.isArray(v) ? v : []; }
+export const norm = v => (Array.isArray(v) ? v : []);
+
+/** 公告：feed.notices 为主，兼容 items/feed/list */
 export function feedItems() {
-  const f = feed.value;
-  const list = (f && (f.items || f.feed || f.list)) || [];
+  const f = feed.value || {};
+  const list = f.notices || f.items || f.feed || f.list || [];
   return Array.isArray(list) ? list : [];
+}
+/** 记录：state 优先，feed 兜底（当前 state.json 为空骨架时真实数据在 feed） */
+export function recordsList() {
+  const sr = norm(state.value && state.value.records);
+  return sr.length ? sr : norm(feed.value && feed.value.records);
+}
+export function membersList() { return norm(state.value && state.value.members); }
+export function honorsList() { return norm(state.value && state.value.honors); }
+export function projectsList() {
+  const sp = norm(state.value && state.value.projects);
+  return sp.length ? sp : norm(feed.value && feed.value.projects);
+}
+function volsList() {
+  const sv = norm(state.value && state.value.volunteers);
+  return sv.length ? sv : norm(feed.value && feed.value.volunteers);
 }
 export function volByMember() {
   const map = {};
-  norm(state.value && state.value.volunteers).forEach(v => {
-    const n = v.memberName || v.name || '';
+  volsList().forEach(v => {
+    const n = v.memberName || v.member || v.name || '';
     if (n) map[n] = (map[n] || 0) + (Number(v.hours) || 0);
   });
   return map;
 }
+export function volEntries() { return volsList(); }
+
 export function cacheTime() {
   const t = uni.getStorageSync(CT);
   if (!t) return '';

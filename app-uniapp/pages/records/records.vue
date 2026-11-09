@@ -28,14 +28,17 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
-import { fetchAll, state, norm, dateText } from '../../utils/api.js';
+import { fetchAll, recordsList, dateText } from '../../utils/api.js';
 
 const type = ref('全部');
 const types = ['全部', '支部团员大会', '支部委员会', '团小组会', '团课', '主题团日', '志愿活动', '立项活动', '其他'];
 const list = computed(() => {
-  const rs = norm(state.value && state.value.records);
+  const rs = recordsList();
   if (type.value === '全部') return rs;
-  return rs.filter(r => (r.type || r.label || '').includes(type.value) || (r.extraCats || []).some(c => String(c).includes(type.value)));
+  return rs.filter(r =>
+    (r.type || r.label || '').includes(type.value)
+    || (r.extraCats || []).some(c => String(c).includes(type.value))
+    || (r.types || []).some(c => String(c).includes(type.value)));
 });
 onShow(() => fetchAll());
 </script>

@@ -33,20 +33,16 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
-import { fetchAll, state, feedItems, norm, dateText } from '../../utils/api.js';
+import { fetchAll, feedItems, recordsList, membersList, honorsList, volEntries, dateText } from '../../utils/api.js';
 
 const loading = ref(true);
 const items = computed(() => feedItems().slice(0, 20));
-const counts = computed(() => {
-  const s = state.value || {};
-  const vols = norm(s.volunteers);
-  return {
-    records: norm(s.records).length,
-    members: norm(s.members).length,
-    honors: norm(s.honors).length,
-    hours: vols.reduce((a, v) => a + (Number(v.hours) || 0), 0),
-  };
-});
+const counts = computed(() => ({
+  records: recordsList().length,
+  members: membersList().length,
+  honors: honorsList().length,
+  hours: volEntries().reduce((a, v) => a + (Number(v.hours) || 0), 0),
+}));
 onShow(async () => { loading.value = true; await fetchAll(); loading.value = false; });
 </script>
 

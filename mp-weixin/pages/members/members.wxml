@@ -3,7 +3,7 @@
   <view class="card">
     <view class="g-title">👥 支部成员（{{members.length}}）</view>
     <view wx:for="{{members}}" wx:key="index" class="mrow">
-      <view class="avatar">{{item.name[0]}}</view>
+      <view class="avatar">{{item.initial}}</view>
       <view class="m-body">
         <text class="m-name">{{item.name}}</text>
         <text class="m-role">{{item.branchRole || item.role || '团员'}}</text>

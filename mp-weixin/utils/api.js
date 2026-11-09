@@ -1,5 +1,5 @@
 // 文件路径: /cysl-web/mp-weixin/utils/api.js
-// 读取 canonical 后端：data/state.json + data/feed.json（团员端只读）
+// 读取 canonical 后端：data/state.json（正式库）+ data/feed.json（公告/公开留痕兜底）
 const REPO = 'icyteacn/CYSL-26CS';
 const BRANCH = 'main';
 const SITE_URL = 'https://icyteacn.github.io/CYSL-26CS';
@@ -42,13 +42,24 @@ async function fetchAll(force = false) {
 
 const norm = v => (Array.isArray(v) ? v : []);
 function feedItems() {
-  const list = (_feed && (_feed.items || _feed.feed || _feed.list)) || [];
+  const f = _feed || {};
+  const list = f.notices || f.items || f.feed || f.list || [];
   return Array.isArray(list) ? list : [];
+}
+function recordsList() {
+  const sr = norm(_state && _state.records);
+  return sr.length ? sr : norm(_feed && _feed.records);
+}
+function membersList() { return norm(_state && _state.members); }
+function honorsList() { return norm(_state && _state.honors); }
+function volsList() {
+  const sv = norm(_state && _state.volunteers);
+  return sv.length ? sv : norm(_feed && _feed.volunteers);
 }
 function volByMember() {
   const map = {};
-  norm(_state && _state.volunteers).forEach(v => {
-    const n = v.memberName || v.name || '';
+  volsList().forEach(v => {
+    const n = v.memberName || v.member || v.name || '';
     if (n) map[n] = (map[n] || 0) + (Number(v.hours) || 0);
   });
   return map;
@@ -65,4 +76,7 @@ function dateText(x) {
   return String(x).slice(0, 10);
 }
 
-module.exports = { SITE_URL, fetchAll, norm, feedItems, volByMember, cacheTime, dateText };
+module.exports = {
+  SITE_URL, fetchAll, norm, feedItems, recordsList,
+  membersList, honorsList, volByMember, volEntries: volsList, cacheTime, dateText,
+};
