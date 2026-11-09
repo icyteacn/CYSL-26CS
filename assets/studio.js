@@ -319,7 +319,7 @@ function pgOps(){const pg=$('#pg');const pr=paceRows();
   <div style="font-size:12.5px;color:var(--mut);margin-bottom:10px">导出本学年度全部留痕为台账 Markdown：含类别/时间/人数/三件套标记/纪要全文，打印即迎检台账。</div>
   <button class="btn red" style="width:100%" onclick="exportAudit()">📦 导出迎检台账（.md）</button></div>
  <div class="card" style="margin-top:14px"><h3><span class="dot"></span>🔄 多设备台账合并</h3>
-  <div style="font-size:12.5px;color:var(--mut);margin-bottom:10px">A 设备导出 → B 设备导入，按「标题+日期」自动去重合并（记录+志愿工时），无需后端。</div>
+  <div style="font-size:12.5px;color:var(--mut);margin-bottom:10px">A 设备导出 → B 设备导入，按「标题+日期」自动去重合并（记录+志愿服务），无需后端。</div>
   <div style="display:flex;gap:8px"><button class="btn" style="flex:1" onclick="exportDB()">📤 导出全量数据</button>
   <button class="btn" style="flex:1" onclick="importDB()">📥 导入并合并</button></div></div>
  <div class="card" style="margin-top:14px"><h3><span class="dot"></span>📈 年度节奏预测</h3>

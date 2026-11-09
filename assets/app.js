@@ -130,7 +130,7 @@ function st(){
   [['支部团员大会','支部团员大会'],['团课','团课']].forEach(([c,n])=>{
     if(!rec.some(r=>r.category===c&&Math.floor(new Date(r.date).getMonth()/3)===q&&new Date(r.date).getFullYear()===yr))
       reminders.push({t:`本季度「${n}」待开展`,sub:'制度要求每季度不少于1次',lvl:'warn',go:'#/records'});});
-  rec.forEach(r=>{if(r.signin&&r.minutes&&!r.synced)reminders.push({t:`「${r.title}」未同步智慧团建`,sub:fmtYMD(r.date),lvl:'warn',go:'#/record/'+r.id})});
+  rec.forEach(r=>{if(r.signin&&r.minutes&&!r.synced)reminders.push({t:`「${r.title}」未录入智慧团建`,sub:fmtYMD(r.date),lvl:'warn',go:'#/record/'+r.id})});
   return{memberCnt:DB.members.filter(comp).length,youthCnt:DB.members.filter(yout).length,
     partyCnt:DB.members.filter(m=>m.political==='中共党员').length,
     total:DB.members.length,recCnt:rec.length,photoCnt:rec.reduce((s,r)=>s+(r.photos||0),0),
@@ -300,7 +300,7 @@ function pgDash(){const s=st(),pg=$('#pg');
         const mx=Math.max(1,...ms.map(m=>m.n));
         return ms.map((m,i)=>`<div class="b ${i===11?'hi':''}" title="${m.l}：${m.n}条"><i style="height:${Math.round(m.n/mx*100)}%"></i><span>${i===11?'本月':m.l}</span></div>`).join('')})()}</div>
       <div style="font-size:11px;color:var(--mut);margin-top:4px">柱高=当月留痕条数 · 悬停看明细</div></div>
-    <div class="card"><h3><span class="dot"></span>志愿工时 TOP5</h3>
+    <div class="card"><h3><span class="dot"></span>服务时长 TOP5</h3>
       ${(()=>{const agg={};mergedVols().forEach(v=>{agg[v.name]=(agg[v.name]||0)+v.hours});
         const top=Object.entries(agg).sort((a,b)=>b[1]-a[1]).slice(0,5);
         const mx=Math.max(1,...top.map(x=>x[1]));
@@ -351,7 +351,7 @@ function rolePanel(s){
     return `<div class="card role-panel" style="border-left:4px solid var(--red)"><h3><span class="dot"></span>🛠 支委管理速览</h3>
       <div class="rp-grid">
         <a class="rp-item" href="#/records"><b>${miss}</b><span>缺三件套记录</span></a>
-        <a class="rp-item" href="#/records"><b>${unsynced}</b><span>未同步智慧团建</span></a>
+        <a class="rp-item" href="#/records"><b>${unsynced}</b><span>未录入智慧团建</span></a>
         <a class="rp-item" href="#/system"><b>${s.reminders.length}</b><span>规范度提醒</span></a>
         <a class="rp-item" href="#/members"><b>${s.memberCnt+s.youthCnt}</b><span>成员管理</span></a>
       </div>
@@ -678,7 +678,7 @@ function pgSystem(){const pg=$('#pg');const s=st();
       ${specRows().map(r=>`<div class="vrow"><span class="nm" style="width:110px">${r.name}</span>
       <span class="bar"><i style="width:${r.pct}%"></i></span>
       <span class="hv" style="width:64px">${r.n}/${r.quota} ${r.pct>=100?'✓':''}</span></div>`).join('')}
-      <div class="rem warn" style="margin-top:8px"><span class="ic">ℹ</span><span class="t" style="font-size:12px">留痕四原则：签到表+会议记录+照片三件套 · 会后3日归档 · 照片规范命名 · 同步智慧团建</span></div></div>
+      <div class="rem warn" style="margin-top:8px"><span class="ic">ℹ</span><span class="t" style="font-size:12px">留痕四原则：签到表+会议记录+照片三件套 · 会后3日归档 · 照片规范命名 · 先记后报录入智慧团建</span></div></div>
     <div>
       <div class="card"><h3><span class="dot"></span>荣誉台账 ${canEdit()?'<button class="btn ghost sm" style="margin-left:auto" onclick="editHonor()">＋</button>':''}</h3>
         ${DB.honors.map(h=>`<div class="row"><span class="cat" style="background:#faf0da">🏆</span>
@@ -731,7 +731,7 @@ window.exportJSON=()=>{const b=new Blob([JSON.stringify(DB,null,1)],{type:'appli
   const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='cysl-backup-'+fmt(Date.now())+'.json';a.click();toast('已导出备份')};
 const _csv=(rows,name)=>{const csv='﻿'+rows.map(r=>r.map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')).join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=name;a.click()};
-window.exportCSV=()=>{_csv([['日期','类型','标题','地点','人数','签到表','会议记录','照片数','已同步智慧团建','已归档','摘要'],
+window.exportCSV=()=>{_csv([['日期','类型','标题','地点','人数','签到表','会议记录','照片数','已录入智慧团建','已归档','摘要'],
   ...DB.records.slice().sort((a,b)=>a.date-b.date).map(r=>[fmtYMD(r.date),r.type,r.title,r.location,r.attendees||0,
   r.signin?'✓':'',r.minutes?'✓':'',r.photos||0,r.synced?'✓':'',r.archived?'✓':'',r.summary])],
   'cysl-留痕台账-'+fmt(Date.now())+'.csv');toast('已导出，Excel/WPS 可直接打开')};
@@ -1151,7 +1151,7 @@ function pgOfficial(){const pg=$('#pg');
     ${FEED.records.filter(r=>!r.appOnly).map(r=>`<div class="vrow"><span class="nm" style="width:96px;font-weight:600;color:var(--red-d)">${esc(r.date||'')}</span>
     <span style="flex:1;font-size:13.5px"><b>${esc(r.title||'')}</b>${(r.type||r.category)?' · '+esc(r.type||r.category):''}${r.attendees?' · '+r.attendees+'人':''}${r.summary?'<div style="font-size:12px;color:var(--mut);margin-top:2px">'+esc(r.summary)+'</div>':''}</span></div>`).join('')}
     <div style="font-size:11px;color:var(--mut);margin-top:8px">以上为支委统一发布的官方留痕，与个人登记记录区分展示</div></div>`:''}
-  ${(FEED.volunteerPushes||[]).length?`<div class="card" style="margin-bottom:12px"><h3><span class="dot"></span>志愿工时公示（只读）</h3>
+  ${(FEED.volunteerPushes||[]).length?`<div class="card" style="margin-bottom:12px"><h3><span class="dot"></span>志愿服务公示（只读）</h3>
     ${FEED.volunteerPushes.map(v=>`<div class="vrow"><span class="nm" style="width:96px;font-weight:600;color:var(--red-d)">${esc(v.date||'')}</span>
     <span style="flex:1;font-size:13.5px"><b>${esc(v.member||'')}</b> · ${esc(v.activity||'')}<b style="color:var(--red-d)"> ${v.hours||0}h</b></span></div>`).join('')}
     <div style="font-size:11px;color:var(--mut);margin-top:8px">支委统一公示的工时认定，与个人申报区分</div></div>`:''}
@@ -1159,7 +1159,7 @@ function pgOfficial(){const pg=$('#pg');
     ${FEED.schedule.map(s=>`<div class="vrow"><span class="nm" style="width:96px;font-weight:600;color:var(--red-d)">${esc(s.date)}</span>
     <span style="flex:1;font-size:13.5px">${esc(s.title)}${s.loc?' · '+esc(s.loc):''}</span></div>`).join('')}</div>`:''}`
   :'<div class="empty"><span class="big">📡</span>暂未获取到官方数据<br><small>检查网络后点击"检查更新"</small></div>'}
-  <div style="font-size:11px;color:var(--mut);margin-top:14px">数据源：站点 <code>data/feed.json</code>（隐藏端点，不在导航展示）。支委更新仓库中的该文件即可向所有 App/网页端推送新团课日程、志愿工时信息等。</div>`}
+  <div style="font-size:11px;color:var(--mut);margin-top:14px">数据源：站点 <code>data/feed.json</code>（隐藏端点，不在导航展示）。支委更新仓库中的该文件即可向所有 App/网页端推送新团课日程、志愿服务信息等。</div>`}
 fetchFeed();
 
 const FEED_EDIT='https://github.com/icyteacn/CYSL-26CS/edit/main/data/feed.json';
