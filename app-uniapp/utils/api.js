@@ -68,6 +68,7 @@ export function projectsList() {
   const sp = norm(state.value && state.value.projects);
   return sp.length ? sp : norm(feed.value && feed.value.projects);
 }
+export function scheduleList() { return norm(feed.value && feed.value.schedule); }
 function volsList() {
   const sv = norm(state.value && state.value.volunteers);
   return sv.length ? sv : norm(feed.value && feed.value.volunteers);

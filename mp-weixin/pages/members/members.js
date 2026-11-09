@@ -4,8 +4,10 @@ const { fetchAll, membersList, honorsList, volByMember, dateText } = require('..
 Page({
   data: { members: [], honors: [] },
   onShow() { this.load(); },
-  async load() {
-    await fetchAll();
+  onPullDownRefresh() { this.load(true).finally(() => wx.stopPullDownRefresh()); },
+  onShareAppMessage() { return { title: '支部成员与荣誉墙', path: '/pages/members/members' }; },
+  async load(force) {
+    await fetchAll(force);
     const vol = volByMember();
     this.setData({
       members: membersList().map(m => ({

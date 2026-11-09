@@ -13,3 +13,5 @@
 .i-text { display: block; font-size: 22rpx; color: #8a8f99; margin-top: 4rpx; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 600rpx; }
 .i-date { display: block; font-size: 20rpx; color: #b0b5bd; margin-top: 4rpx; }
 .foot { text-align: center; padding: 30rpx; }
+.pbar { height: 8rpx; background: #f0f1f5; border-radius: 999rpx; margin-top: 10rpx; overflow: hidden; max-width: 480rpx; }
+.pfill { height: 100%; background: linear-gradient(90deg, #c62828, #ef9a9a); border-radius: 999rpx; }

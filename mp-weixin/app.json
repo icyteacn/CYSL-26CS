@@ -9,7 +9,9 @@
     "navigationBarBackgroundColor": "#c62828",
     "navigationBarTitleText": "智团慧建",
     "navigationBarTextStyle": "white",
-    "backgroundColor": "#f5f6fa"
+    "backgroundColor": "#f5f6fa",
+    "enablePullDownRefresh": true,
+    "backgroundTextStyle": "dark"
   },
   "tabBar": {
     "color": "#8a8f99",

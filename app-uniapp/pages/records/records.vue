@@ -27,7 +27,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { onShow } from '@dcloudio/uni-app';
+import { onShow, onPullDownRefresh } from '@dcloudio/uni-app';
 import { fetchAll, recordsList, dateText } from '../../utils/api.js';
 
 const type = ref('全部');
@@ -41,6 +41,7 @@ const list = computed(() => {
     || (r.types || []).some(c => String(c).includes(type.value)));
 });
 onShow(() => fetchAll());
+onPullDownRefresh(async () => { await fetchAll(true); uni.stopPullDownRefresh(); });
 </script>
 
 <style>

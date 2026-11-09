@@ -12,6 +12,28 @@
     <view class="stat"><text class="num">{{counts.hours}}</text><text class="lab">志愿时长</text></view>
   </view>
 
+  <view class="card" wx:if="{{upcoming.length}}">
+    <view class="g-title">📅 近期安排</view>
+    <view wx:for="{{upcoming}}" wx:key="index" class="item">
+      <view class="i-body">
+        <text class="i-title">{{item.title || item.name}}</text>
+        <text class="i-date">{{item.dateS}}<text wx:if="{{item.location}}"> · {{item.location}}</text></text>
+      </view>
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{projects.length}}">
+    <view class="g-title">🚩 立项进展</view>
+    <view wx:for="{{projects}}" wx:key="index" class="item">
+      <view class="i-body">
+        <text class="i-title">{{item.name || item.title}}</text>
+        <text class="i-text" wx:if="{{item.outcome || item.plan}}">{{item.outcome || item.plan}}</text>
+        <view class="pbar" wx:if="{{item.progress >= 0}}"><view class="pfill" style="width:{{item.progress}}%"></view></view>
+        <text class="i-date">{{item.status || ''}}<text wx:if="{{item.progress >= 0}}"> · {{item.progress}}%</text></text>
+      </view>
+    </view>
+  </view>
+
   <view class="card">
     <view class="g-title">📢 最新公告</view>
     <view wx:if="{{!items.length && !loading}}" class="mut">暂无公告</view>

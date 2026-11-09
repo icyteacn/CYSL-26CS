@@ -13,6 +13,28 @@
       <view class="stat"><text class="num">{{ counts.hours }}</text><text class="lab">志愿时长</text></view>
     </view>
 
+    <view v-if="upcoming.length" class="card">
+      <view class="g-title">📅 近期安排</view>
+      <view v-for="(it, i) in upcoming" :key="i" class="item">
+        <view class="i-body">
+          <text class="i-title">{{ it.title || it.name }}</text>
+          <text class="i-date">{{ dateText(it.date || it.at) }}<text v-if="it.location"> · {{ it.location }}</text></text>
+        </view>
+      </view>
+    </view>
+
+    <view v-if="projects.length" class="card">
+      <view class="g-title">🚩 立项进展</view>
+      <view v-for="(p, i) in projects" :key="i" class="item">
+        <view class="i-body">
+          <text class="i-title">{{ p.name || p.title }}</text>
+          <text class="i-text" v-if="p.outcome || p.plan">{{ p.outcome || p.plan }}</text>
+          <view class="pbar" v-if="p.progress >= 0"><view class="pfill" :style="{ width: p.progress + '%' }"></view></view>
+          <text class="i-date">{{ p.status || '' }}<text v-if="p.progress >= 0"> · {{ p.progress }}%</text></text>
+        </view>
+      </view>
+    </view>
+
     <view class="card">
       <view class="g-title">📢 最新公告</view>
       <view v-if="!items.length && !loading" class="mut">暂无公告</view>
@@ -32,11 +54,13 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import { onShow } from '@dcloudio/uni-app';
-import { fetchAll, feedItems, recordsList, membersList, honorsList, volEntries, dateText } from '../../utils/api.js';
+import { onShow, onPullDownRefresh } from '@dcloudio/uni-app';
+import { fetchAll, feedItems, recordsList, membersList, honorsList, projectsList, scheduleList, volEntries, dateText } from '../../utils/api.js';
 
 const loading = ref(true);
 const items = computed(() => feedItems().slice(0, 20));
+const upcoming = computed(() => scheduleList().slice(0, 5));
+const projects = computed(() => projectsList().slice(0, 5));
 const counts = computed(() => ({
   records: recordsList().length,
   members: membersList().length,
@@ -44,6 +68,7 @@ const counts = computed(() => ({
   hours: volEntries().reduce((a, v) => a + (Number(v.hours) || 0), 0),
 }));
 onShow(async () => { loading.value = true; await fetchAll(); loading.value = false; });
+onPullDownRefresh(async () => { await fetchAll(true); uni.stopPullDownRefresh(); });
 </script>
 
 <style>
@@ -61,4 +86,6 @@ onShow(async () => { loading.value = true; await fetchAll(); loading.value = fal
 .i-text { display: block; font-size: 22rpx; color: #8a8f99; margin-top: 4rpx; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 600rpx; }
 .i-date { display: block; font-size: 20rpx; color: #b0b5bd; margin-top: 4rpx; }
 .foot { text-align: center; padding: 30rpx; }
+.pbar { height: 8rpx; background: #f0f1f5; border-radius: 999rpx; margin-top: 10rpx; overflow: hidden; max-width: 480rpx; }
+.pfill { height: 100%; background: linear-gradient(90deg, #c62828, #ef9a9a); border-radius: 999rpx; }
 </style>

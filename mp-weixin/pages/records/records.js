@@ -6,8 +6,10 @@ const TYPES = ['全部', '支部团员大会', '支部委员会', '团小组会'
 Page({
   data: { types: TYPES, type: '全部', list: [] },
   onShow() { this.load(); },
-  async load() {
-    await fetchAll();
+  onPullDownRefresh() { this.load(true).finally(() => wx.stopPullDownRefresh()); },
+  onShareAppMessage() { return { title: '支部留痕 · 三会两制一课记录', path: '/pages/records/records' }; },
+  async load(force) {
+    await fetchAll(force);
     this._records = recordsList().map(r => ({ ...r, dateS: dateText(r.date) }));
     this.apply();
   },

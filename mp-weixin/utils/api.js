@@ -52,6 +52,11 @@ function recordsList() {
 }
 function membersList() { return norm(_state && _state.members); }
 function honorsList() { return norm(_state && _state.honors); }
+function projectsList() {
+  const sp = norm(_state && _state.projects);
+  return sp.length ? sp : norm(_feed && _feed.projects);
+}
+function scheduleList() { return norm(_feed && _feed.schedule); }
 function volsList() {
   const sv = norm(_state && _state.volunteers);
   return sv.length ? sv : norm(_feed && _feed.volunteers);
@@ -78,5 +83,6 @@ function dateText(x) {
 
 module.exports = {
   SITE_URL, fetchAll, norm, feedItems, recordsList,
-  membersList, honorsList, volByMember, volEntries: volsList, cacheTime, dateText,
+  membersList, honorsList, projectsList, scheduleList,
+  volByMember, volEntries: volsList, cacheTime, dateText,
 };

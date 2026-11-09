@@ -31,13 +31,14 @@
 
 <script setup>
 import { computed } from 'vue';
-import { onShow } from '@dcloudio/uni-app';
+import { onShow, onPullDownRefresh } from '@dcloudio/uni-app';
 import { fetchAll, membersList, honorsList, volByMember, dateText } from '../../utils/api.js';
 
 const members = computed(() => membersList());
 const honors = computed(() => honorsList());
 const vol = computed(() => volByMember());
 onShow(() => fetchAll());
+onPullDownRefresh(async () => { await fetchAll(true); uni.stopPullDownRefresh(); });
 </script>
 
 <style>
