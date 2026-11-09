@@ -553,12 +553,13 @@ function rankCard(){
 function pgVol(){const pg=$('#pg');const s=st();
   const byM={};mergedVols().forEach(v=>{byM[v.memberId]=(byM[v.memberId]||0)+v.hours});
   const rows=DB.members.map(m=>({m,h:byM[m.id]||0})).sort((a,b)=>b.h-a.h);
-  pg.innerHTML=`<div class="page-h"><h2>志愿服务</h2><span class="hint">时长排行与服务明细 · 数据按实登记</span>
+  pg.innerHTML=`<div class="page-h"><h2>志愿服务</h2><span class="hint">服务记录汇总 · 时长认定以「志愿汇」为准</span>
   ${canEdit()?'<button class="btn sm" style="margin-left:auto" onclick="editVol(0)">＋ 记时长</button>':''}</div>
   <div class="grid g3">
     <div class="card stat"><span class="ico">♥</span><span class="v">${s.volHours}</span><span class="l">累计志愿时长（小时）</span></div>
     <div class="card stat"><span class="ico">✋</span><span class="v">${s.volCnt}</span><span class="l">服务人次</span></div>
     <div class="card stat"><span class="ico">👥</span><span class="v">${s.total?(s.volHours/s.total).toFixed(1):0}</span><span class="l">人均时长</span></div></div>
+  <div style="font-size:11px;color:var(--mut);margin:2px 2px 0">本页为支部内部服务记录汇总，正式时长认定以「志愿汇」平台为准。</div>
   ${rankCard()}
   <div class="card" style="margin-top:14px"><h3><span class="dot"></span>时长排行 TOP10</h3>
     <canvas class="chart" id="vchart" ${rows.some(r=>r.h>0)?'':'style="display:none"'}></canvas>
@@ -689,6 +690,8 @@ function pgSystem(){const pg=$('#pg');const s=st();
         <button class="btn" style="width:100%" onclick="genReport()">生成年度报告</button>
         <button class="btn line" style="width:100%;margin-top:8px" onclick="window.print()">打印 / 另存 PDF</button></div>
     </div></div>
+  <div class="card" style="margin-top:14px"><h3><span class="dot"></span>平台定位 · 与智慧团建分工</h3>
+    <div style="font-size:12.5px;color:var(--mut);line-height:1.8">本平台是支部日常工作的「干活工具」，与「智慧团建」上报系统各司其职：正式业务在官方平台办理，本平台管过程协同与材料生成，先记后报、不产生两套数据。<br>志愿服务时长认定以「志愿汇」为准，本页仅作服务记录汇总；成员信息按「政治面貌+学号尾号」脱敏呈现，数据仅存本机浏览器。</div></div>
   ${canEdit()?`<div class="card" style="margin-top:14px"><h3><span class="dot"></span>官方数据发布 <span style="font-size:11px;color:var(--mut);font-weight:400">隐藏端点 · 发布后全端免更新同步</span></h3>
     <div style="font-size:12.5px;color:var(--mut);margin-bottom:10px">生成 JSON → 粘贴进仓库 data/feed.json 对应数组 → 提交。所有 App 与网页端下次打开即自动拉到。</div>
     <div class="grid g3">

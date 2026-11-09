@@ -1,10 +1,10 @@
 {
-  "versionCode": 46,
-  "versionName": "1.0.46",
-  "apk": "api/leaguetrace-v1.0.46.apk",
-  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.46.apk",
+  "versionCode": 47,
+  "versionName": "1.0.47",
+  "apk": "api/leaguetrace-v1.0.47.apk",
+  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.47.apk",
   "apkLatest": "api/leaguetrace-latest.apk",
-  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.46.apk",
-  "notes": "v1.0.46：投屏新增第6屏「数字大屏·支部全景」——金字版头+支部名+「请党放心强国有我」主题+2×2金框数据矩阵+三会两制一课年度落实金条，实时数据注入。签名2277d065。",
-  "mandatory": true
+  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.47.apk",
+  "notes": "v1.0.47：口径对齐立项申报——志愿页标注「时长认定以志愿汇为准」、成员画像更名「参与记录」、体系页新增「平台定位·与智慧团建分工」说明卡（先记后报、不产生两套数据、脱敏呈现）。签名2277d065。",
+  "mandatory": false
 }
