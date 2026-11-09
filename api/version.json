@@ -1,10 +1,10 @@
 {
-  "versionCode": 48,
-  "versionName": "1.0.48",
-  "apk": "api/leaguetrace-v1.0.48.apk",
-  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.48.apk",
+  "versionCode": 49,
+  "versionName": "1.0.49",
+  "apk": "api/leaguetrace-v1.0.49.apk",
+  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.49.apk",
   "apkLatest": "api/leaguetrace-latest.apk",
-  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.48.apk",
-  "notes": "v1.0.48：全端「志愿工时」口径统一为「志愿服务/服务时长」——录入页、榜单、驾驶舱、成员详情、导出CSV文件名与表头、台账摘要、审核弹窗全面更名，时长认定口径仍以志愿汇为准。签名2277d065。",
+  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.49.apk",
+  "notes": "v1.0.49：投屏页优化——「请党放心·强国有我」标语自适应单行不折行；荣誉为0时轮播自动跳过荣誉墙页，大名片第4格改显示现场照片数；台账CSV表头与提醒统一「录入智慧团建」口径。签名2277d065。",
   "mandatory": false
 }
