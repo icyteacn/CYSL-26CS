@@ -1,36 +1,37 @@
-# 启用时的接线指南（到时照做，不是现在要改）
+# 启用时的接线指南（备选方案启用时照做）
 
-> 本文件只说明「将来启用某方案时，把适配器接在哪几个现成挂钩点」。
-> 现在不需要改任何线上代码——以下都是将来的接线说明。
+> 01-github-api 已上线（v1.0.51）。本文说明「将来切换到其他方案时，挂钩点在哪」。
 
-## 网站端（CYSL-26CS-web）
+## 已上线架构（GitHub 方案，供对照）
 
-1. `shared/cloud-sync.js` → 拷到 `assets/cloud-sync.js`，
-   `index.html` 在 `assets/app.js` **之前**加 `<script src="assets/cloud-sync.js"></script>`。
-2. **首次配置**（控制台或设置页做一次）：
-   ```js
-   Cloud.configure('<方案preset名>', {/* 见各 README */});
-   localStorage.cysl_token = '支委token';   // 写权限才需要，成员机不设
-   ```
-3. **拉取挂钩**：在现有 `fetchFeed()` 完成后加一行
-   `Cloud.pull().then(r=>{ if(r){ /*按现有 merge 逻辑合并进 DB*/ save(); render(); }});`
-   ——推荐复用 app.js 里「导入 JSON 恢复/多设备合并」已有的去重合并函数。
-4. **推送挂钩**：在现有「导出 JSON 备份」按钮旁加「☁ 推送到云端」，
-   onClick 先走 `canEdit()`/管理口令，再 `Cloud.push()`。
-5. token 管理入口：系统页加一个「云端同步」卡，放 粘贴token/立即拉取/推送 三个控件即可。
+**统一库 `data/state.json`**（canonical schema v1），App 与网页读写同一份：
+- 网站 `assets/cloud-sync.js`（`Cloud` 对象）：pull/push/submit/review/setup，
+  在 `index.html` 中先于 `app.js` 加载，启动时 `Cloud.pull(true)` 静默合并
+- App `util/CloudSync.java`（HTTP 协议层）+ `util/CloudBundle.java`（Room↔canonical 转换）
+  + `SystemFragment` 体系页「云端同步·GitHub」卡（拉取/推送/提交申请/审核申请/token）
 
-## App 端（LeagueTrace）
+**权限/审核**：拉取免配置；推送走支委 token 直写或编辑页兜底；成员「提交申请」写
+`data/inbox/sub-*.json`（GitHub 自动 fork+PR）；支委「审核申请」并入+删除+回推。
+token 存本机 SP/localStorage，不进代码。
 
-1. `shared/CloudSync.java` → 拷到 `app/.../util/CloudSync.java`（已按包名写好）。
-2. 在 `SystemFragment`（体系页）加「云端同步」卡：
-   - 「粘贴写 token」→ `sp.edit().putString("cloud_token",...)`
-   - 「拉取云端」→ `App.get().io().execute(() -> { JSONObject r = CloudSync.pull(cfg); ... 走 Backup.restore 类似逻辑 })`
-   - 「推送本地到云端」→ `Identity.gate(...)` 通过后 `CloudSync.push(cfg, Backup.bundle(db)转JSONObject)`
-3. `Config` 对象从 SP 里存的方案参数重建（方案名+endpoint+token），不进代码。
+## 切换到其他方案时的改动点
 
-## 通用原则（再强调）
+**网站端**：`assets/cloud-sync.js` 内的 `READ_URLS/API_URL/EDIT_URL/INBOX_*` 常量换成
+新后端端点（`shared/cloud-sync.js` 的 preset 机制可直接复用——把 pull/push 内部实现
+替换为 preset 的 req() 即可，submit/review 的 inbox 语义需在新后端上重建：
+用一个 `inbox` 集合存申请，审核端读取+合并+删除）。
 
-- **默认关闭**：`Cloud.enabled()`/`pull()` 未配置返回 null，纯前端路径不受影响。
-- **只读默认开、写要口令**：成员设备不配置 token → 自动只读。
-- **先本地备份再首推**：首次 push 前手动 `导出 JSON 备份` 保底。
-- **冲突**：单文档「最后写覆盖」够用；要细粒度用现有「标题+日期」合并逻辑。
+**App 端**：`SystemFragment.cloudCfg()` 一行换成目标方案的 `CloudSync.*()` 工厂
+（`shared/CloudSync.java` 已含 gitee/worker/supabase/firebase/leancloud/bmob/
+pocketbase/appwrite 全部 preset）；inbox 审核的 `INBOX_API/httpDelete` 需按新后端
+的"集合列表+删除"接口重写约 40 行。
+
+**不变量**（换后端也必须保持）：
+- 拉取免配置、写要凭据、正式库不可被未授权端直接覆盖
+- 合并按键去重只加不覆盖；canonical schema v1 字段名不动
+- token 只存本机；成员端默认只读+申请通道
+
+## 通用安全红线
+
+- 写 token 绝不进代码/git；成员机不配 token 即只读
+- 首次切换先「导出 JSON 备份」；旧后端数据建议先迁移合并再下线

@@ -22,9 +22,14 @@ export default async function handler(req, res) {
   if (req.method === 'PUT') {
     if (req.headers['x-write-token'] !== process.env.WRITE_TOKEN)
       return res.status(403).send('forbidden');
+    // req.body 视 Content-Type 可能是对象或字符串，统一落成对象再存
+    let data = req.body;
+    if (typeof data === 'string') { try { data = JSON.parse(data); } catch (e) {
+      return res.status(400).send('invalid json'); } }
+    if (!data || typeof data !== 'object') return res.status(400).send('invalid body');
     const prev = await kv.get('doc');
     if (prev) await kv.set('doc.prev', prev);
-    await kv.set('doc', req.body);
+    await kv.set('doc', data);
     await kv.set('updatedAt', new Date().toISOString());
     return res.status(200).json({ ok: true });
   }

@@ -1,9 +1,5 @@
 {
-  "members": [],
-  "records": [],
-  "volunteerEntries": [],
-  "projects": [],
-  "honors": [],
-  "exportedAt": 0,
-  "_note": "LeagueTrace App 云端同步存储（Backup.Bundle 格式，与网页端 data/state.json 分文件互不影响）。"
+  "_deprecated": "v1.0.51 起 App 与网页共用 canonical 统一库 data/state.json，本文件不再写入。保留仅为旧版（≤1.0.50）App 拉取兼容。",
+  "_see": "data/state.json",
+  "members": [], "records": [], "volunteers": [], "projects": [], "honors": []
 }

@@ -4,7 +4,8 @@
 exports = async function (payload) {
   const db = context.services.get('mongodb-atlas').db('cysl').collection('state');
   const { httpMethod, headers, body } = payload;
-  const token = (headers['X-Write-Token'] || [])[0];
+  // Atlas endpoint headers 大小写不保证，两种都试
+  const token = (headers['X-Write-Token'] || headers['x-write-token'] || [])[0];
 
   if (httpMethod === 'GET') {
     const doc = await db.findOne({ _id: 1 });

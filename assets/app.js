@@ -714,10 +714,12 @@ function pgSystem(){const pg=$('#pg');const s=st();
   <div class="card" style="margin-top:14px"><h3><span class="dot"></span>☁ 云端同步 · GitHub</h3>
     <div class="grid g3">
       <button class="btn ghost" onclick="cloudPull()">⬇ 拉取云端数据</button>
-      <button class="btn" onclick="cloudPush()">⬆ 推送到云端</button>
+      <button class="btn" onclick="cloudPush()">⬆ 推送到云端（支委）</button>
+      <button class="btn ghost" onclick="cloudSubmit()">📮 提交申请</button>
+      <button class="btn ghost" onclick="cloudReview()">✅ 审核申请</button>
       <button class="btn ghost" onclick="cloudSetup()">🔑 同步设置</button>
     </div>
-    <div style="font-size:11.5px;color:var(--mut);margin-top:10px">数据存仓库 <code>data/state.json</code>。拉取免配置；推送未配 token 时自动复制 JSON 并打开提交页（粘贴+Commit）。多设备以「标题+日期」去重合并，不互踩。</div></div>
+    <div style="font-size:11.5px;color:var(--mut);margin-top:10px">统一库 <code>data/state.json</code>，App 与网页同一套数据。拉取免配置、按业务键去重只加不覆盖；支委推送直接发布；成员走「提交申请」进 <code>data/inbox/</code>，支委「审核申请」并入后统一发布——写权限由 GitHub 仓库权限把关。</div></div>
   <div class="card" style="margin-top:14px"><h3><span class="dot"></span>安全与隐私</h3>
     <div class="grid g3">
       <button class="btn ghost" onclick="changeCode()">🔑 修改管理口令</button>

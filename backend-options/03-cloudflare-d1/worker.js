@@ -34,7 +34,8 @@ export default {
         'INSERT INTO state_history (ts,doc) VALUES (?,?)')
         .bind(new Date().toISOString(), old.doc).run();
       await env.DB.prepare(
-        'UPDATE state SET doc=?, updated_at=? WHERE id=1')
+        `INSERT INTO state (id, doc, updated_at) VALUES (1, ?, ?)
+         ON CONFLICT(id) DO UPDATE SET doc=excluded.doc, updated_at=excluded.updated_at`)
         .bind(body, new Date().toISOString()).run();
       return new Response('{"ok":true}', { headers: cors });
     }

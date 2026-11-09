@@ -1,10 +1,10 @@
 {
-  "versionCode": 50,
-  "versionName": "1.0.50",
-  "apk": "api/leaguetrace-v1.0.50.apk",
-  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.50.apk",
+  "versionCode": 51,
+  "versionName": "1.0.51",
+  "apk": "api/leaguetrace-v1.0.51.apk",
+  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.51.apk",
   "apkLatest": "api/leaguetrace-latest.apk",
-  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.50.apk",
-  "notes": "v1.0.50：云端同步上线——体系页新增「云端同步·GitHub」卡，拉取免配置自动合并（标题+日期去重），推送走 token 直写或提交页兜底；数据存 data/state-app.json 与网页端 data/state.json 分文件。签名2277d065。",
+  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.51.apk",
+  "notes": "v1.0.51：云端同步统一升级——App/网页共用 canonical 统一库 data/state.json（新增 CloudBundle 双向转换，志愿外键按名字对齐）；新增「提交申请→data/inbox/→支委审核并入」通道，正式库写入全程受 GitHub 仓库权限把关。签名2277d065。",
   "mandatory": false
 }

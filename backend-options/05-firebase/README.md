@@ -14,12 +14,14 @@ Google BaaS 经典方案：RTDB 本身就是「一个 JSON 树」，与我们的
 ## 启用步骤
 1. console.firebase.google.com → 建项目 → Realtime Database → 选区域
    （新加坡 `asia-southeast1` 延迟最低）
-2. 规则（最小安全：公开读、secret 写）：
+2. 规则（最小安全：公开读、认证写）：
    ```json
-   { "rules": { "state": { ".read": true,
-        ".write": "auth != null || newData.child('_w').val() === 'SECRET_写口令'" } } }
+   { "rules": { "state": { ".read": true, ".write": "auth != null" } } }
    ```
-   或更省事：`?auth=DATABASE_SECRET` 走 legacy secret（项目设置→Service accounts→Database secrets）
+   写入走 legacy Database Secret：`?auth=DATABASE_SECRET`
+   （项目设置 → Service accounts → Database secrets 生成；secret 会使 auth 非空并放行写）。
+   ⚠️ 不要用 `newData.child('某字段') === '口令'` 这类"写体藏口令"规则——我们的写体是整库 JSON，
+   没有预留口令字段，规则会恒拒写。
 3. 接入（写入 URL 带 `?auth=`）：
    ```js
    Cloud.configure('firebase', { url:'https://xxx-default-rtdb.asia-southeast1.firebasedatabase.app', token:'DATABASE_SECRET' });

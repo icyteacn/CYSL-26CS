@@ -124,7 +124,7 @@ public final class CloudSync {
         c.readHeaders.put("X-LC-Key", appKey);
         c.writeUrl = c.readUrl;
         c.writeHeaders.putAll(c.readHeaders);
-        c.unwrap = j -> j.optJSONObject("doc");
+        c.unwrap = j -> docOf(j);
         c.wrap = data -> new JSONObject().put("doc", data);
         return c;
     }
@@ -136,7 +136,7 @@ public final class CloudSync {
         c.readHeaders.put("X-Bmob-REST-API-Key", restKey);
         c.writeUrl = c.readUrl;
         c.writeHeaders.putAll(c.readHeaders);
-        c.unwrap = j -> j.optJSONObject("doc");
+        c.unwrap = j -> docOf(j);
         c.wrap = data -> new JSONObject().put("doc", data);
         return c;
     }
@@ -147,7 +147,7 @@ public final class CloudSync {
         c.writeUrl = url + "/api/collections/state/records/" + recordId;
         c.writeMethod = "PATCH";
         c.writeHeaders.put("Authorization", "Bearer " + adminToken);
-        c.unwrap = j -> j.optJSONObject("doc");
+        c.unwrap = j -> docOf(j);
         c.wrap = data -> new JSONObject().put("doc", data);
         return c;
     }
@@ -161,7 +161,7 @@ public final class CloudSync {
         c.writeUrl = c.readUrl;
         c.writeMethod = "PATCH";
         c.writeHeaders.putAll(c.readHeaders);
-        c.unwrap = j -> j.optJSONObject("doc");
+        c.unwrap = j -> docOf(j);
         c.wrap = data -> {
             JSONObject inner = new JSONObject().put("doc", data);
             return new JSONObject().put("data", inner);
@@ -198,6 +198,14 @@ public final class CloudSync {
     }
 
     /* ============ 内部工具 ============ */
+
+    /** doc 字段可能是 JSON 对象也可能是字符串（取决于建表类型），统一解出对象 */
+    private static JSONObject docOf(JSONObject j) throws Exception {
+        JSONObject o = j.optJSONObject("doc");
+        if (o != null) return o;
+        String s = j.optString("doc", null);
+        return s == null || s.isEmpty() ? null : new JSONObject(s);
+    }
 
     private static String readSha(String url, Map<String,String> headers) {
         try {

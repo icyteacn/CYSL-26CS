@@ -54,7 +54,7 @@ const Cloud = (() => {
     supabase: c => ({
       read:  { url:`${c.url}/rest/v1/state?id=eq.1&select=doc`,
                headers:{ apikey:c.anonKey, Authorization:`Bearer ${c.anonKey}` },
-               unwrap: j => j[0] && j[0].doc },
+               unwrap: j => j[0] && asDoc(j[0].doc) },
       write: { url:`${c.url}/rest/v1/state`, method:'POST',
                headers:{ apikey:c.anonKey, Authorization:`Bearer ${c.anonKey}`,
                          'Content-Type':'application/json',
@@ -71,7 +71,7 @@ const Cloud = (() => {
     leancloud: c => ({
       read:  { url:`${c.base||'https://'+c.appId.slice(0,8)+'.lc-cn-n1-shared.com'}/1.1/classes/State/${c.objectId}`,
                headers:{ 'X-LC-Id':c.appId, 'X-LC-Key':c.appKey },
-               unwrap: j => j.doc },
+               unwrap: j => asDoc(j.doc) },
       write: { url:`${c.base||'https://'+c.appId.slice(0,8)+'.lc-cn-n1-shared.com'}/1.1/classes/State/${c.objectId}`,
                method:'PUT',
                headers:{ 'X-LC-Id':c.appId, 'X-LC-Key':c.masterKey||c.appKey,
@@ -81,7 +81,7 @@ const Cloud = (() => {
     bmob: c => ({
       read:  { url:`https://api2.bmob.cn/1/classes/State/${c.objectId}`,
                headers:{ 'X-Bmob-Application-Id':c.appId,'X-Bmob-REST-API-Key':c.restKey },
-               unwrap: j => j.doc },
+               unwrap: j => asDoc(j.doc) },
       write: { url:`https://api2.bmob.cn/1/classes/State/${c.objectId}`, method:'PUT',
                headers:{ 'X-Bmob-Application-Id':c.appId,'X-Bmob-REST-API-Key':c.restKey,
                          'Content-Type':'application/json' },
@@ -90,7 +90,7 @@ const Cloud = (() => {
     /* —— 10/11 PocketBase / Appwrite：集合里固定一条记录 —— */
     pocketbase: c => ({
       read:  { url:`${c.url}/api/collections/state/records/${c.recordId}?fields=doc`,
-               unwrap: j => j.doc },
+               unwrap: j => asDoc(j.doc) },
       write: { url:`${c.url}/api/collections/state/records/${c.recordId}`,
                method:'PATCH',
                headers:{ Authorization:`Bearer ${c.token}`,'Content-Type':'application/json' },
@@ -99,7 +99,7 @@ const Cloud = (() => {
     appwrite: c => ({
       read:  { url:`${c.url}/v1/databases/${c.dbId}/collections/${c.colId}/documents/state`,
                headers:{ 'X-Appwrite-Project':c.project, 'X-Appwrite-Key':c.apiKey },
-               unwrap: j => j.doc },
+               unwrap: j => asDoc(j.doc) },
       write: { url:`${c.url}/v1/databases/${c.dbId}/collections/${c.colId}/documents/state`,
                method:'PATCH',
                headers:{ 'X-Appwrite-Project':c.project, 'X-Appwrite-Key':c.apiKey,
@@ -110,6 +110,8 @@ const Cloud = (() => {
   };
 
   function b64(s){ return btoa(unescape(encodeURIComponent(s))); }
+  /* doc 字段可能是对象（jsonb/JSON 类型）也可能是字符串（String 类型）——统一解出对象 */
+  function asDoc(x){ return typeof x === 'string' ? JSON.parse(x) : x; }
   async function req(w){
     const opt = { method: w.method||'GET', headers: Object.assign({}, w.headers) };
     if (w.body) opt.body = typeof w.body === 'function'

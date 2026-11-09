@@ -1,23 +1,39 @@
 # 智团慧建 · 后端方案备选库（12 套）
 
 > 用途：把 App/网站从「单设备纯前端」升级为「多设备共享数据」的备选后端。
-> **全部方案均未启用**，代码与配置已预写好，需要哪套就按对应文件夹 README 配置。
-> 启用任意方案都不影响现有纯前端功能——`shared/` 里的适配器按「缺省即关闭」设计。
+> **当前已上线：01-github-api**（v1.0.51，canonical 统一库 `data/state.json` + `data/inbox/` 审核箱）。
+> 其余方案仍为预写备选，需要哪套就按对应文件夹 README 配置；启用都不影响现有功能——`shared/` 适配器按「缺省即关闭」设计。
 
 ## 数据模型共识（所有方案统一）
 
-现有两端数据是一个 JSON 文档：
-- 网站 `localStorage` 的 `DB` = `{members, records, volunteers, projects, honors}`
-- App `Backup.bundle()` 导出同构 JSON
-- 官方 feed 走 `data/feed.json`（支委写、全员读），已经是只读 API
+现有两端数据是一个 JSON 文档（canonical schema v1，App 经 `util/CloudBundle.java` 与 Room 实体双向转换）：
+- 统一库 `data/state.json` = `{v, exportedAt, members[], records[], volunteers[], projects[], honors[]}`
+- App 与网站读写同一份——App int 类别 ↔ canonical 字符串类型由 CloudBundle 转换，
+  志愿者外键用 `member`（掩码名）对齐，跨设备不依赖本地自增 id
+- 官方 feed 走 `data/feed.json`（支委写、全员读），与业务库分离
 
 所以后端抽象 = **一个 JSON 文档的读/写**：
 - `pull()` → GET 返回 JSON 全量
-- `push()` → PUT/POST JSON 全量（仅支委口令用户）
-- 冲突策略：先简单「最后写入覆盖全量」；要精细合并用 App 现有「标题+日期去重合并」逻辑在客户端做
+- `push()` → PUT/POST JSON 全量（仅支委）
+- 冲突策略：客户端按业务键去重合并（只加不覆盖），双端口径一致
 
 `shared/cloud-sync.js`（网站）与 `shared/CloudSync.java`（App）是这个抽象的通用实现，
 大部分方案只改 `endpoint` 和 `headers` 即可复用。
+
+## 权限 / 审核模型（已上线，v1.0.51）
+
+```
+拉取 data/state.json   —— 全员免配置（jsdelivr CDN 公开读）
+推送 data/state.json   —— 支委专属：token 直写 或 编辑页提交，直接发布
+提交申请（成员）       —— 本地数据 → data/inbox/sub-*.json
+                          无仓库权限时 GitHub 自动引导 fork+PR，支委合并即入库
+审核申请（支委）       —— 列出 inbox → 逐份去重并入本地 → 删申请文件 → 推回正式库
+```
+
+- 写权限最终由 **GitHub 仓库权限**把关（服务端强制），前端按钮仅做引导
+- App 端推送/审核/token 设置另过 `Identity.gate` 支委口令（双保险）
+- 正式库永远不可能被未授权客户端直接覆盖——成员只能进 inbox
+- 其余方案启用时套用同一模型：公开读 + token 写 + inbox/审批队列
 
 ## 方案速查表
 
