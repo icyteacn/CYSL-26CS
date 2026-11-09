@@ -1,0 +1,9 @@
+{
+  "members": [],
+  "records": [],
+  "volunteerEntries": [],
+  "projects": [],
+  "honors": [],
+  "exportedAt": 0,
+  "_note": "LeagueTrace App 云端同步存储（Backup.Bundle 格式，与网页端 data/state.json 分文件互不影响）。"
+}

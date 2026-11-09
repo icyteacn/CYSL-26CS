@@ -1,0 +1,4 @@
+{
+  "functions": { "api/state.js": { "maxDuration": 10 } },
+  "rewrites": [{ "source": "/state", "destination": "/api/state" }]
+}

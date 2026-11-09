@@ -711,6 +711,13 @@ function pgSystem(){const pg=$('#pg');const s=st();
       <button class="btn danger" onclick="resetAll()">⟲ 重置为初始示例</button>
     </div><input id="imp" type="file" accept=".json" style="display:none" onchange="importJSON(this)">
     <div style="font-size:11.5px;color:var(--mut);margin-top:10px">数据仅存于本机浏览器（localStorage），不上传服务器；换机请先导出备份。</div></div>
+  <div class="card" style="margin-top:14px"><h3><span class="dot"></span>☁ 云端同步 · GitHub</h3>
+    <div class="grid g3">
+      <button class="btn ghost" onclick="cloudPull()">⬇ 拉取云端数据</button>
+      <button class="btn" onclick="cloudPush()">⬆ 推送到云端</button>
+      <button class="btn ghost" onclick="cloudSetup()">🔑 同步设置</button>
+    </div>
+    <div style="font-size:11.5px;color:var(--mut);margin-top:10px">数据存仓库 <code>data/state.json</code>。拉取免配置；推送未配 token 时自动复制 JSON 并打开提交页（粘贴+Commit）。多设备以「标题+日期」去重合并，不互踩。</div></div>
   <div class="card" style="margin-top:14px"><h3><span class="dot"></span>安全与隐私</h3>
     <div class="grid g3">
       <button class="btn ghost" onclick="changeCode()">🔑 修改管理口令</button>
@@ -1161,6 +1168,8 @@ function pgOfficial(){const pg=$('#pg');
   :'<div class="empty"><span class="big">📡</span>暂未获取到官方数据<br><small>检查网络后点击"检查更新"</small></div>'}
   <div style="font-size:11px;color:var(--mut);margin-top:14px">数据源：站点 <code>data/feed.json</code>（隐藏端点，不在导航展示）。支委更新仓库中的该文件即可向所有 App/网页端推送新团课日程、志愿服务信息等。</div>`}
 fetchFeed();
+/* 启动静默拉取云端（有新增才提示；失败静默不影响使用） */
+if(window.Cloud) Cloud.pull(true).then(n=>{if(n)toast('云端同步：合并 '+n+' 条新数据')});
 
 const FEED_EDIT='https://github.com/icyteacn/CYSL-26CS/edit/main/data/feed.json';
 window.openFeedEdit=()=>window.open(FEED_EDIT,'_blank');

@@ -1,10 +1,10 @@
 {
-  "versionCode": 49,
-  "versionName": "1.0.49",
-  "apk": "api/leaguetrace-v1.0.49.apk",
-  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.49.apk",
+  "versionCode": 50,
+  "versionName": "1.0.50",
+  "apk": "api/leaguetrace-v1.0.50.apk",
+  "apkUrl": "https://raw.githubusercontent.com/icyteacn/CYSL-26CS/main/api/leaguetrace-v1.0.50.apk",
   "apkLatest": "api/leaguetrace-latest.apk",
-  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.49.apk",
-  "notes": "v1.0.49：投屏页优化——「请党放心·强国有我」标语自适应单行不折行；荣誉为0时轮播自动跳过荣誉墙页，大名片第4格改显示现场照片数；台账CSV表头与提醒统一「录入智慧团建」口径。签名2277d065。",
+  "apkCdn": "https://cdn.jsdelivr.net/gh/icyteacn/CYSL-26CS@main/api/leaguetrace-v1.0.50.apk",
+  "notes": "v1.0.50：云端同步上线——体系页新增「云端同步·GitHub」卡，拉取免配置自动合并（标题+日期去重），推送走 token 直写或提交页兜底；数据存 data/state-app.json 与网页端 data/state.json 分文件。签名2277d065。",
   "mandatory": false
 }

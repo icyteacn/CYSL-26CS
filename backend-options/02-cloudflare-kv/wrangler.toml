@@ -1,0 +1,11 @@
+name = "cysl-state"
+main = "worker.js"
+compatibility_date = "2024-09-01"
+
+# wrangler kv:namespace create STATE 后把 id 填这里
+[[kv_namespaces]]
+binding = "STATE"
+id = "YOUR_KV_NAMESPACE_ID"
+preview_id = "YOUR_KV_NAMESPACE_ID"
+
+# 密钥不在此文件，用命令设置：wrangler secret put WRITE_TOKEN

@@ -1,0 +1,9 @@
+{
+  "exportedAt": 0,
+  "members": [],
+  "records": [],
+  "volunteers": [],
+  "projects": [],
+  "honors": [],
+  "_note": "CYSL 云端同步存储。各端 push 时整体覆盖本文件（先读 sha 再 PUT）；pull 按业务键去重合并。"
+}

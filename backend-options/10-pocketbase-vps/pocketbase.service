@@ -1,0 +1,17 @@
+# /etc/systemd/system/pocketbase.service
+# 安装：cp pocketbase.service /etc/systemd/system/ && systemctl enable --now pocketbase
+[Unit]
+Description=PocketBase - CYSL state backend
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/home/ubuntu/pb
+ExecStart=/home/ubuntu/pb/pocketbase serve --http=0.0.0.0:8090
+Restart=always
+RestartSec=5
+# 生产建议套 Caddy/Nginx 反代出 HTTPS，此处仅监听内网或加防火墙白名单
+
+[Install]
+WantedBy=multi-user.target
