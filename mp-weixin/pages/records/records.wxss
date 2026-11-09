@@ -1,0 +1,12 @@
+/* 文件路径: /cysl-web/mp-weixin/pages/records/records.wxss */
+.filter { display: flex; flex-wrap: wrap; padding: 20rpx 24rpx 0; }
+.chip { font-size: 24rpx; background: #fff; color: #5a5f66; border-radius: 999rpx; padding: 10rpx 24rpx; margin: 0 14rpx 14rpx 0; }
+.chip.on { background: #c62828; color: #fff; }
+.rec { padding: 18rpx 0; border-top: 1rpx solid #f0f1f5; }
+.r-head { display: flex; align-items: center; justify-content: space-between; }
+.r-title { font-size: 28rpx; font-weight: 500; flex: 1; }
+.r-tag { background: #fdecea; color: #c62828; }
+.r-meta { display: block; font-size: 22rpx; color: #8a8f99; margin-top: 6rpx; }
+.r-sum { display: block; font-size: 24rpx; color: #5a5f66; margin-top: 8rpx; }
+.r-flags { margin-top: 8rpx; }
+.f { background: #e8f5e9; color: #2e7d32; margin-right: 10rpx; }

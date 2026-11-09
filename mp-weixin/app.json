@@ -1,0 +1,27 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/records/records",
+    "pages/members/members",
+    "pages/about/about"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#c62828",
+    "navigationBarTitleText": "智团慧建",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f6fa"
+  },
+  "tabBar": {
+    "color": "#8a8f99",
+    "selectedColor": "#c62828",
+    "backgroundColor": "#ffffff",
+    "list": [
+      { "pagePath": "pages/index/index", "text": "动态" },
+      { "pagePath": "pages/records/records", "text": "留痕" },
+      { "pagePath": "pages/members/members", "text": "成员" },
+      { "pagePath": "pages/about/about", "text": "我的" }
+    ]
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2"
+}

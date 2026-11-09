@@ -1,0 +1,29 @@
+<!-- 文件路径: /cysl-web/mp-weixin/pages/index/index.wxml -->
+<view class="page safe-bottom">
+  <view class="hero">
+    <view class="hero-title">智团慧建</view>
+    <view class="hero-sub">支部动态 · 与网站数据实时同步</view>
+  </view>
+
+  <view class="stats">
+    <view class="stat"><text class="num">{{counts.records}}</text><text class="lab">留痕记录</text></view>
+    <view class="stat"><text class="num">{{counts.members}}</text><text class="lab">支部成员</text></view>
+    <view class="stat"><text class="num">{{counts.honors}}</text><text class="lab">荣誉</text></view>
+    <view class="stat"><text class="num">{{counts.hours}}</text><text class="lab">志愿时长</text></view>
+  </view>
+
+  <view class="card">
+    <view class="g-title">📢 最新公告</view>
+    <view wx:if="{{!items.length && !loading}}" class="mut">暂无公告</view>
+    <view wx:for="{{items}}" wx:key="index" class="item">
+      <view class="i-body">
+        <text class="i-title">{{item.title || item.name}}</text>
+        <text class="i-text" wx:if="{{item.summary || item.body}}">{{item.summary || item.body}}</text>
+        <text class="i-date">{{item.dateS}}</text>
+      </view>
+    </view>
+    <view wx:if="{{loading}}" class="mut">加载中…</view>
+  </view>
+
+  <view class="foot mut">数据只读 · 业务办理请用网页版或 App</view>
+</view>

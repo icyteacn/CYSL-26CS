@@ -1,0 +1,26 @@
+{
+  "pages": [
+    { "path": "pages/index/index", "style": { "navigationBarTitleText": "智团慧建" } },
+    { "path": "pages/records/records", "style": { "navigationBarTitleText": "支部留痕" } },
+    { "path": "pages/members/members", "style": { "navigationBarTitleText": "成员与荣誉" } },
+    { "path": "pages/about/about", "style": { "navigationBarTitleText": "我的" } }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "智团慧建",
+    "navigationBarBackgroundColor": "#c62828",
+    "backgroundColor": "#f5f6fa"
+  },
+  "tabBar": {
+    "color": "#8a8f99",
+    "selectedColor": "#c62828",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      { "pagePath": "pages/index/index", "text": "动态" },
+      { "pagePath": "pages/records/records", "text": "留痕" },
+      { "pagePath": "pages/members/members", "text": "成员" },
+      { "pagePath": "pages/about/about", "text": "我的" }
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+<!-- 文件路径: /cysl-web/mp-weixin/pages/members/members.wxml -->
+<view class="page safe-bottom">
+  <view class="card">
+    <view class="g-title">👥 支部成员（{{members.length}}）</view>
+    <view wx:for="{{members}}" wx:key="index" class="mrow">
+      <view class="avatar">{{item.name[0]}}</view>
+      <view class="m-body">
+        <text class="m-name">{{item.name}}</text>
+        <text class="m-role">{{item.branchRole || item.role || '团员'}}</text>
+      </view>
+      <text class="m-hours" wx:if="{{item.hours}}">志愿 {{item.hours}}h</text>
+    </view>
+    <view wx:if="{{!members.length}}" class="mut">暂无成员数据</view>
+  </view>
+
+  <view class="card">
+    <view class="g-title">🏆 荣誉墙（{{honors.length}}）</view>
+    <view wx:for="{{honors}}" wx:key="index" class="hrow">
+      <view class="h-body">
+        <text class="h-title">{{item.title}}</text>
+        <text class="h-meta">{{item.level}}<text wx:if="{{item.grantee}}"> · {{item.grantee}}</text> · {{item.dateS}}</text>
+      </view>
+    </view>
+    <view wx:if="{{!honors.length}}" class="mut">暂无荣誉记录</view>
+  </view>
+
+  <view class="mut foot">成员学号等敏感信息不在本端展示 · 志愿服务时长以「志愿汇」认定为准</view>
+</view>

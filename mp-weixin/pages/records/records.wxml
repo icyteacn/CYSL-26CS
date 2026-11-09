@@ -1,0 +1,24 @@
+<!-- 文件路径: /cysl-web/mp-weixin/pages/records/records.wxml -->
+<view class="page safe-bottom">
+  <view class="filter">
+    <text wx:for="{{types}}" wx:key="*this" class="chip {{type === item ? 'on' : ''}}" data-t="{{item}}" bindtap="pick">{{item}}</text>
+  </view>
+
+  <view class="card">
+    <view wx:if="{{!list.length}}" class="mut">暂无记录</view>
+    <view wx:for="{{list}}" wx:key="index" class="rec">
+      <view class="r-head">
+        <text class="r-title">{{item.title}}</text>
+        <text class="tag r-tag">{{item.type || item.label || '活动'}}</text>
+      </view>
+      <text class="r-meta">{{item.dateS}}<text wx:if="{{item.location}}"> · {{item.location}}</text><text wx:if="{{item.attendees}}"> · {{item.attendees}}人</text></text>
+      <text class="r-sum" wx:if="{{item.summary}}">{{item.summary}}</text>
+      <view class="r-flags">
+        <text class="tag f" wx:if="{{item.signin || item.hasSignIn}}">签到</text>
+        <text class="tag f" wx:if="{{item.minutes || item.hasMinutes}}">纪要</text>
+        <text class="tag f" wx:if="{{item.photos || item.hasPhotos}}">照片</text>
+        <text class="tag f" wx:if="{{item.archived || item.hasArchive}}">归档</text>
+      </view>
+    </view>
+  </view>
+</view>
