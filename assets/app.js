@@ -357,7 +357,7 @@ function rolePanel(s){
       </div>
       <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
         <a class="btn sm" href="#/records">＋ 记一条留痕</a>
-        <a class="btn ghost sm" href="#/volunteer">＋ 录志愿工时</a>
+        <a class="btn ghost sm" href="#/volunteer">＋ 记志愿服务</a>
         <a class="btn ghost sm" href="#/official">📣 查看官方公告</a>
       </div></div>`;
   }
@@ -706,7 +706,7 @@ function pgSystem(){const pg=$('#pg');const s=st();
       <button class="btn ghost" onclick="exportJSON()">⬇ 导出 JSON 备份</button>
       <button class="btn ghost" onclick="document.getElementById('imp').click()">⬆ 导入 JSON 恢复</button>
       <button class="btn ghost" onclick="exportCSV()">📊 留痕台账 → Excel(CSV)</button>
-      <button class="btn ghost" onclick="exportVolCSV()">📊 志愿工时 → Excel(CSV)</button>
+      <button class="btn ghost" onclick="exportVolCSV()">📊 服务记录 → Excel(CSV)</button>
       <button class="btn ghost" onclick="copyLedger()">📋 复制台账摘要</button>
       <button class="btn danger" onclick="resetAll()">⟲ 重置为初始示例</button>
     </div><input id="imp" type="file" accept=".json" style="display:none" onchange="importJSON(this)">
@@ -736,12 +736,12 @@ window.exportCSV=()=>{_csv([['日期','类型','标题','地点','人数','签�
   r.signin?'✓':'',r.minutes?'✓':'',r.photos||0,r.synced?'✓':'',r.archived?'✓':'',r.summary])],
   'cysl-留痕台账-'+fmt(Date.now())+'.csv');toast('已导出，Excel/WPS 可直接打开')};
 window.exportVolCSV=()=>{const byM={},cnt={};DB.volunteers.forEach(v=>{byM[v.memberId]=(byM[v.memberId]||0)+v.hours;cnt[v.memberId]=(cnt[v.memberId]||0)+1});
-  _csv([['姓名','政治面貌','累计工时(h)','服务次数'],
+  _csv([['姓名','政治面貌','累计时长(h)','服务次数'],
   ...DB.members.map(m=>[mask(m.name),m.political,byM[m.id]||0,cnt[m.id]||0])],
-  'cysl-志愿工时-'+fmt(Date.now())+'.csv');toast('已导出（脱敏模式生效中则姓名已遮蔽）')};
+  'cysl-服务记录-'+fmt(Date.now())+'.csv');toast('已导出（脱敏模式生效中则姓名已遮蔽）')};
 window.copyLedger=async()=>{const s=st();
   const lines=[`【${BRANCH} · 台账摘要 ${fmt(Date.now())}】`,...specRows().map(r=>`${r.name}：${r.n}/${r.quota}`),
-  `留痕 ${s.recCnt} 条 · 志愿工时 ${s.volHours}h · 照片 ${s.photoCnt} 张`,'',
+  `留痕 ${s.recCnt} 条 · 志愿服务 ${s.volHours}h · 照片 ${s.photoCnt} 张`,'',
   '日期\t类型\t标题\t地点\t人数\t三件套',
   ...DB.records.slice().sort((a,b)=>b.date-a.date).map(r=>[fmtYMD(r.date),r.type,r.title,r.location,r.attendees||0,
   (r.signin&&r.minutes&&r.photos)?'✓':'缺'].join('\t'))];
