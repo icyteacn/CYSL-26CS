@@ -38,3 +38,23 @@
 ## 本地预览
 
 任意静态服务器：`python -m http.server` / `npx serve`。
+
+## 移动客户端（2026-11 新增）
+
+仓内新增两套**完全独立**的客户端源码，与网页共用同一份 `data/state.json` + `data/feed.json`（canonical 统一库，团员端只读）：
+
+| 目录 | 技术栈 | 用途 |
+| --- | --- | --- |
+| `app-uniapp/` | Vue3 `<script setup>` + uni-app | HBuilderX 云打包 iOS（ipa） |
+| `mp-weixin/` | 微信原生 WXML/WXSS/JS/JSON | 微信小程序上架 |
+
+- 四页：动态（公告+全量统计+近期安排+立项进展）/ 留痕（按类型筛选）/ 成员（名册+志愿时长+荣誉墙，**不显示学号**）/ 我的
+- 数据层：jsDelivr→raw 双源容错 + 本地缓存；`state.json` 优先、`feed.json` 兜底（state 空骨架时真实留痕/志愿自动读 feed）
+- 交互：全页下拉刷新 + 分享卡片（小程序端）
+- **权限边界**：团员端只读，不内置任何写凭据；写入仍走网页版/App 支委端（见「云端同步」）
+- 打包/上架：填 appid + iOS 证书（uni-app README）、换小程序 AppID + 配 request 域名（mp README）
+
+## 后端备选（未启用）
+
+`backend-options/`（如仓内有此目录）预置 GitHub仓内文件 / CF Workers+KV / LeanCloud / PocketBase 四套方案，
+含可部署代码与价格/配置文档，**全部默认关闭**——现有纯前端 + GitHub 仓 JSON 模式不受影响。
