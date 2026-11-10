@@ -1,0 +1,15 @@
+<!-- 文件路径: /cysl-web/mp-weixin/pages/projects/projects.wxml -->
+<view class="page safe-bottom">
+  <view class="card" wx:for="{{list}}" wx:key="index" data-p="{{item}}" bindtap="show">
+    <view class="p-head">
+      <text class="p-name">{{item.name || item.title}}</text>
+      <text class="p-status">{{item.statusText}}</text>
+    </view>
+    <view class="p-meta">{{item.category || '立项'}}<text wx:if="{{item.startS}}"> · {{item.startS}} ~ {{item.endS}}</text></view>
+    <view class="p-target" wx:if="{{item.target}}">{{item.target}}</view>
+    <view class="pbar"><view class="pfill" style="width:{{item.progress || 0}}%"></view></view>
+    <view class="p-pct">{{item.progress || 0}}% · 点击查看详情</view>
+  </view>
+  <view class="card" wx:if="{{!list.length && !loading}}"><view class="mut">暂无立项</view></view>
+  <view class="mut foot">立项详情与进度更新请以网页工作台为准</view>
+</view>

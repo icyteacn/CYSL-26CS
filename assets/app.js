@@ -279,7 +279,9 @@ function pgDash(){const s=st(),pg=$('#pg');
       :`<div class="empty" style="color:rgba(255,255,255,.7);padding:24px 0"><span class="big">📅</span>暂无计划中的活动<br>${canEdit()?'<a class="btn sm" style="margin-top:10px" href="#/records">去安排</a>':''}</div>`}
     </div>
   </div>
-  <div class="grid g4" style="margin-top:14px" id="official-card">
+  <div class="grid g4" style="margin-top:14px">
+    <a class="card" href="api/leaguetrace-latest.apk"><h3><span class="dot"></span>📲 安卓 App</h3><div style="font-size:12px;color:var(--mut)">智团慧建 APK · 全功能留痕</div></a>
+    <a class="card" href="app/"><h3><span class="dot"></span>🍎 iPhone/网页版</h3><div style="font-size:12px;color:var(--mut)">添加到主屏幕即成 App</div></a>
     <a class="card" href="#/party"><h3><span class="dot"></span>🏛 入党日程</h3><div style="font-size:12px;color:var(--mut)">全流程·五批次·材料清单</div></a>
     <a class="card" href="#/knowledge"><h3><span class="dot"></span>📚 团务知识库</h3><div style="font-size:12px;color:var(--mut)">三会两制一课·团章·推优</div></a>
     <a class="card" href="#/official"><h3><span class="dot"></span>📣 官方公告</h3><div style="font-size:12px;color:var(--mut)" id="official-hint">支委发布·自动同步</div></a>

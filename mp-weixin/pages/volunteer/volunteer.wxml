@@ -1,0 +1,31 @@
+<!-- 文件路径: /cysl-web/mp-weixin/pages/volunteer/volunteer.wxml -->
+<view class="page safe-bottom">
+  <view class="vhero">
+    <view class="v-num">{{total}}<text class="v-unit">h</text></view>
+    <view class="v-lab">支部累计志愿时长</view>
+  </view>
+
+  <view class="card" wx:if="{{board.length}}">
+    <view class="g-title">🏅 工时榜</view>
+    <view wx:for="{{board}}" wx:key="name" class="brow">
+      <text class="b-rank">{{index + 1}}</text>
+      <text class="b-name">{{item.name}}</text>
+      <text class="b-hours">{{item.hours}}h</text>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="g-title">♥ 志愿明细（{{list.length}}）</view>
+    <view wx:if="{{!list.length && !loading}}" class="mut">暂无志愿记录</view>
+    <view wx:for="{{list}}" wx:key="index" class="vrow">
+      <view class="v-body">
+        <text class="v-title">{{item.activity}}</text>
+        <text class="v-meta">{{item.member}} · {{item.dateS}}</text>
+      </view>
+      <text class="v-h">{{item.hours}}h</text>
+    </view>
+    <view wx:if="{{loading}}" class="mut">加载中…</view>
+  </view>
+
+  <view class="mut foot">工时以「志愿汇」平台认定为准 · 与网站同步</view>
+</view>

@@ -1,0 +1,24 @@
+<!-- 文件路径: /cysl-web/mp-weixin/pages/study/study.wxml -->
+<view class="page safe-bottom">
+  <scroll-view scroll-x class="cats" enhanced show-scrollbar="{{false}}">
+    <view wx:for="{{cats}}" wx:key="index"
+          class="chip {{item === cat ? 'on' : ''}}"
+          data-c="{{item}}" bindtap="pick">{{item}}</view>
+  </scroll-view>
+
+  <view class="card">
+    <view class="g-title">📚 学习资料（{{list.length}}）</view>
+    <view wx:if="{{!list.length && !loading}}" class="mut">暂无资料</view>
+    <view wx:for="{{list}}" wx:key="index" class="srow" data-it="{{item}}" bindtap="open">
+      <view class="s-dot"></view>
+      <view class="s-body">
+        <text class="s-title">{{item.t}}</text>
+        <text class="s-brief" wx:if="{{item.b}}">{{item.b}}</text>
+        <text class="s-meta">{{item.c}}<text wx:if="{{item.s}}"> · {{item.s}}</text></text>
+      </view>
+    </view>
+    <view wx:if="{{loading}}" class="mut">加载中…</view>
+  </view>
+
+  <view class="mut foot">来源：团中央等公开渠道，每周自动更新 · 与网站同步</view>
+</view>

@@ -6,7 +6,7 @@
 
   <view class="card">
     <view wx:if="{{!list.length}}" class="mut">暂无记录</view>
-    <view wx:for="{{list}}" wx:key="index" class="rec">
+    <view wx:for="{{list}}" wx:key="index" class="rec" data-r="{{item}}" bindtap="show">
       <view class="r-head">
         <text class="r-title">{{item.title}}</text>
         <text class="tag r-tag">{{item.type || item.label || '活动'}}</text>

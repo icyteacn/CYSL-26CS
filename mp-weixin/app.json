@@ -3,6 +3,9 @@
                   "pages/index/index",
                   "pages/records/records",
                   "pages/members/members",
+                  "pages/study/study",
+                  "pages/volunteer/volunteer",
+                  "pages/projects/projects",
                   "pages/about/about"
               ],
     "window":  {

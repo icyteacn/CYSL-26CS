@@ -17,6 +17,19 @@ Page({
     this.setData({ type: e.currentTarget.dataset.t });
     this.apply();
   },
+  show(e) {
+    const r = e.currentTarget.dataset.r;
+    const parts = [
+      `类型：${r.type || r.label || '-'}`,
+      `时间：${r.dateS || '-'}`,
+    ];
+    if (r.location) parts.push(`地点：${r.location}`);
+    if (r.attendees) parts.push(`应到：${r.expected && r.expected.length ? r.expected.length : r.attendees}人`);
+    if (r.host) parts.push(`主持：${String(r.host).replace(/​/g, '')}`);
+    if (r.summary) parts.push(`\n${r.summary}`);
+    if (r.absent && r.absent.length) parts.push(`\n缺席：${r.absent.join('、')}`);
+    wx.showModal({ title: r.title, content: parts.join('\n'), showCancel: false });
+  },
   apply() {
     const t = this.data.type;
     const rs = this._records || [];

@@ -10,6 +10,8 @@ Page({
   onShow() { this.load(); },
   onPullDownRefresh() { this.load(true).finally(() => wx.stopPullDownRefresh()); },
   onShareAppMessage() { return { title: '智团慧建 · 支部工作平台', path: '/pages/index/index' }; },
+  go(e) { wx.navigateTo({ url: e.currentTarget.dataset.p }); },
+  goRecords() { wx.switchTab({ url: '/pages/records/records' }); },
   onShareTimeline() { return { title: '智团慧建 · 支部工作平台' }; },
   async load(force) {
     this.setData({ loading: true });

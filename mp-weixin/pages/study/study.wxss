@@ -1,0 +1,13 @@
+/* 文件路径: /cysl-web/mp-weixin/pages/study/study.wxss */
+.cats { white-space: nowrap; padding: 16rpx 24rpx 4rpx; }
+.chip { display: inline-block; margin-right: 14rpx; padding: 8rpx 24rpx; font-size: 24rpx; color: #5a6070; background: #fff; border: 1rpx solid #e4e6eb; border-radius: 999rpx; }
+.chip.on { color: #fff; background: #c62828; border-color: #c62828; font-weight: 700; }
+.g-title { font-size: 30rpx; font-weight: 700; margin-bottom: 16rpx; }
+.srow { display: flex; gap: 16rpx; padding: 14rpx 0; border-bottom: 1rpx solid #f0f1f4; }
+.srow:last-child { border-bottom: none; }
+.s-dot { flex-shrink: 0; width: 14rpx; height: 14rpx; border-radius: 50%; background: linear-gradient(135deg,#c62828,#f0823a); margin-top: 10rpx; }
+.s-body { flex: 1; display: flex; flex-direction: column; gap: 4rpx; min-width: 0; }
+.s-title { font-size: 26rpx; font-weight: 600; color: #1f2329; line-height: 1.4; }
+.s-brief { font-size: 22rpx; color: #5a6070; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.s-meta { font-size: 20rpx; color: #8a8f99; }
+.foot { text-align: center; padding: 20rpx; }

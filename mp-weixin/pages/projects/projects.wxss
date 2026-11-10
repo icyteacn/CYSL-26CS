@@ -1,0 +1,10 @@
+/* 文件路径: /cysl-web/mp-weixin/pages/projects/projects.wxss */
+.p-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14rpx; }
+.p-name { flex: 1; font-size: 28rpx; font-weight: 800; color: #1f2329; line-height: 1.45; }
+.p-status { flex-shrink: 0; font-size: 20rpx; font-weight: 700; color: #c62828; background: #fdecea; border: 1rpx solid #f2c1c1; border-radius: 999rpx; padding: 4rpx 16rpx; }
+.p-meta { font-size: 22rpx; color: #8a8f99; margin-top: 8rpx; }
+.p-target { font-size: 23rpx; color: #5a6070; line-height: 1.55; margin-top: 12rpx; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.pbar { height: 10rpx; background: #f0e2e2; border-radius: 999rpx; overflow: hidden; margin-top: 14rpx; }
+.pfill { height: 100%; background: linear-gradient(90deg,#c62828,#f0823a); border-radius: 999rpx; }
+.p-pct { font-size: 20rpx; color: #8a8f99; margin-top: 8rpx; text-align: right; }
+.foot { text-align: center; padding: 20rpx; }

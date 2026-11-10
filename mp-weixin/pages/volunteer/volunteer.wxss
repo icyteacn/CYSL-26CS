@@ -1,0 +1,18 @@
+/* 文件路径: /cysl-web/mp-weixin/pages/volunteer/volunteer.wxss */
+.vhero { margin: 20rpx 24rpx; padding: 36rpx 24rpx; border-radius: 20rpx; background: linear-gradient(160deg,#8f1d22,#6d1418,#4d0e15); text-align: center; color: #fff; }
+.v-num { font-size: 64rpx; font-weight: 900; color: #ffd977; }
+.v-unit { font-size: 28rpx; margin-left: 6rpx; }
+.v-lab { font-size: 24rpx; color: rgba(255,255,255,.8); margin-top: 6rpx; }
+.g-title { font-size: 30rpx; font-weight: 700; margin-bottom: 14rpx; }
+.brow { display: flex; align-items: center; gap: 16rpx; padding: 12rpx 0; border-bottom: 1rpx solid #f0f1f4; }
+.brow:last-child { border-bottom: none; }
+.b-rank { width: 40rpx; font-size: 26rpx; font-weight: 800; color: #c62828; text-align: center; }
+.b-name { flex: 1; font-size: 26rpx; color: #1f2329; }
+.b-hours { font-size: 26rpx; font-weight: 800; color: #c62828; }
+.vrow { display: flex; align-items: center; gap: 14rpx; padding: 14rpx 0; border-bottom: 1rpx solid #f0f1f4; }
+.vrow:last-child { border-bottom: none; }
+.v-body { flex: 1; display: flex; flex-direction: column; gap: 4rpx; min-width: 0; }
+.v-title { font-size: 26rpx; font-weight: 600; color: #1f2329; }
+.v-meta { font-size: 20rpx; color: #8a8f99; }
+.v-h { font-size: 28rpx; font-weight: 800; color: #c62828; flex-shrink: 0; }
+.foot { text-align: center; padding: 20rpx; }

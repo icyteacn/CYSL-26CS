@@ -15,3 +15,8 @@
 .foot { text-align: center; padding: 30rpx; }
 .pbar { height: 8rpx; background: #f0f1f5; border-radius: 999rpx; margin-top: 10rpx; overflow: hidden; max-width: 480rpx; }
 .pfill { height: 100%; background: linear-gradient(90deg, #c62828, #ef9a9a); border-radius: 999rpx; }
+
+.navgrid { display: flex; }
+.ncell { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8rpx; padding: 16rpx 0; }
+.n-ic { width: 76rpx; height: 76rpx; display: flex; align-items: center; justify-content: center; font-size: 40rpx; background: linear-gradient(135deg,#fdecea,#fff5ec); border: 1rpx solid #f2d4d4; border-radius: 20rpx; }
+.n-t { font-size: 22rpx; color: #3a3f4a; }

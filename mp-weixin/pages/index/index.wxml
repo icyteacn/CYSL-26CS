@@ -12,6 +12,16 @@
     <view class="stat"><text class="num">{{counts.hours}}</text><text class="lab">志愿时长</text></view>
   </view>
 
+  <view class="card">
+    <view class="g-title">⚡ 功能直达</view>
+    <view class="navgrid">
+      <view class="ncell" bindtap="go" data-p="/pages/study/study"><text class="n-ic">📚</text><text class="n-t">学习资料</text></view>
+      <view class="ncell" bindtap="go" data-p="/pages/volunteer/volunteer"><text class="n-ic">♥</text><text class="n-t">志愿工时</text></view>
+      <view class="ncell" bindtap="go" data-p="/pages/projects/projects"><text class="n-ic">🚀</text><text class="n-t">立项一览</text></view>
+      <view class="ncell" bindtap="goRecords"><text class="n-ic">🗂</text><text class="n-t">留痕台账</text></view>
+    </view>
+  </view>
+
   <view class="card" wx:if="{{upcoming.length}}">
     <view class="g-title">📅 近期安排</view>
     <view wx:for="{{upcoming}}" wx:key="index" class="item">
