@@ -72,7 +72,7 @@ onPullDownRefresh(async () => { await fetchAll(true); uni.stopPullDownRefresh();
 </script>
 
 <style>
-.hero { background: linear-gradient(135deg, #c62828, #e53935); color: #fff; padding: 44rpx 32rpx 32rpx; }
+.hero { background: linear-gradient(160deg, #8f1d22 0%, #6d1418 55%, #4d0e15 100%); color: #fff; padding: 44rpx 32rpx 32rpx; }
 .hero-title { font-size: 44rpx; font-weight: 700; }
 .hero-sub { opacity: .85; margin-top: 8rpx; font-size: 26rpx; }
 .stats { display: flex; background: #fff; margin: 20rpx 24rpx; border-radius: 20rpx; padding: 24rpx 0; }
