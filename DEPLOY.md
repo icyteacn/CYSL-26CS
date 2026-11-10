@@ -11,10 +11,13 @@
    - `https://raw.githubusercontent.com`
 3. 上传 → 版本管理提审。类目建议「教育 > 教育信息服务」。
 
-## 二、iOS App（uni-app）
+## 二、iOS App —— 已完成（H5 免费路线）
 
-- **零成本路线（已选定）**：HBuilderX → 发行 H5 → 托管静态站 → iOS 用户「添加到主屏幕」。
-- **正式 ipa**：Apple 开发者账号 **$99/年** → 生成 p12 证书 + mobileprovision → `manifest.json` 填 **DCloud appid**（dcloud.net.cn 免费）→ HBuilderX 云打包 → App Store Connect / TestFlight 分发。
+**H5 产物已构建并铺进仓根 `app/`**，随 `pages.yml` 整仓部署自动上线：
+
+- iOS 使用：Safari 打开 **https://icyteacn.github.io/CYSL-26CS/app/** → 分享 →「添加到主屏幕」。
+- 重新构建：`cd app-uniapp && npm install && npm run build:h5`；本地预览 `npm run dev:h5`。
+- 正式 ipa（App Store/TestFlight）才需 Apple 开发者 $99/年，暂不启用。
 
 ## 三、支委写权限（state.json 入库，约 5 分钟）
 
